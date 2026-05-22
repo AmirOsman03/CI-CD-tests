@@ -5,27 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Испит за сертификација на Kubernetes: Pod-ови (Дел 2)</title>
     <style>
-        /* --- ЦСС ДИЗАЈН СИСТЕМ (ТЕМНА ТЕМА) --- */
+        /* --- ЦСС ДИЗАЈН СИСТЕМ (PREMIUM CYBERPUNK / SCI-FI NEON DARK) --- */
         :root {
-            --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 100%);
-            --card-bg: #1f2937;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --success: #10b981;
-            --error: #ef4444;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-color: #374151;
-            --option-bg: #374151;
-            --option-hover: #4b5563;
-            --accent: #f59e0b;
+            --bg-gradient: linear-gradient(135deg, #050811 0%, #0a1128 100%);
+            --card-bg: #0f1934;
+            --primary: #00f5d4;
+            --primary-hover: #00bbf9;
+            --success: #00f5d4;
+            --error: #f72585;
+            --text-main: #b5c2ec;
+            --text-muted: #707e94;
+            --border-color: #1e295d;
+            --option-bg: #132247;
+            --option-hover: #1b3266;
+            --accent: #fee440;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -35,326 +36,343 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 24px;
         }
 
         .container {
             width: 100%;
-            max-width: 820px;
-            perspective: 1000px;
+            max-width: 850px;
         }
 
-        /* --- КАРТИЧКИ --- */
+        /* --- КАРТИЧКИ И ТЕХНОЛОШКИ ЛЕЈАУТ --- */
         .card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 40px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border-color);
-            transition: all 0.4s ease;
+            box-shadow: 0 0 30px rgba(0, 245, 212, 0.1);
+            border: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* Високо-технолошка три-колорна линеарна горна линија */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--error), var(--accent));
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* --- ПОЧЕТЕН ЕКРАН --- */
+        /* --- ИНТРО ЕКРАН --- */
         .intro-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
         .intro-header h1 {
-            font-size: 2.2rem;
-            color: var(--text-main);
-            margin-bottom: 15px;
-            font-weight: 700;
+            font-size: 2.1rem;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 245, 212, 0.4);
         }
 
         .intro-header p {
-            color: var(--text-muted);
+            color: #94a3b8;
             font-size: 1.1rem;
             line-height: 1.6;
         }
 
         .meta-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
 
         .meta-item {
-            background: #111827;
+            background: #070d1e;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 8px;
             text-align: center;
             border: 1px solid var(--border-color);
         }
 
         .meta-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
         .meta-value {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: var(--accent);
+            text-shadow: 0 0 8px rgba(254, 228, 64, 0.3);
         }
 
-        /* --- ПРОГРЕС БАР И ТАЈМЕР --- */
+        /* --- ИНФО БАР И ПРОГРЕС ТРАКЕР --- */
         .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .progress-container {
-            flex-grow: 1;
-            height: 10px;
-            background: #111827;
-            border-radius: 5px;
-            margin-right: 20px;
+            height: 6px;
+            background: #070d1e;
+            border-radius: 3px;
             overflow: hidden;
-            position: relative;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
         .progress-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 0 10px var(--primary);
             transition: width 0.3s ease;
-        }
-
-        .timer-box {
-            font-size: 1.1rem;
-            font-weight: bold;
-            background: #111827;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            color: var(--accent);
-            white-space: nowrap;
         }
 
         .info-bar {
             display: flex;
             justify-content: space-between;
-            color: var(--text-muted);
+            align-items: center;
+            color: #94a3b8;
             font-size: 0.95rem;
-            margin-bottom: 25px;
+            background: #070d1e;
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .badge-weight {
+            background: #1e1b4b;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* --- ПРАШАЊА И ОПЦИИ --- */
         .question-text {
             font-size: 1.3rem;
-            line-height: 1.5;
-            margin-bottom: 30px;
+            line-height: 1.6;
+            margin: 35px 0 25px 0;
+            color: #ffffff;
             font-weight: 600;
         }
 
         .options-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 35px;
         }
 
         .option-item {
             background: var(--option-bg);
-            padding: 18px 24px;
-            border-radius: 10px;
+            padding: 18px 22px;
+            border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             transition: all 0.2s ease;
-            border: 2px solid transparent;
+            border: 1px solid var(--border-color);
             user-select: none;
         }
 
         .option-item:hover {
             background: var(--option-hover);
-            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.15);
         }
 
         .option-item input {
-            margin-right: 15px;
-            width: 20px;
-            height: 20px;
+            margin-right: 18px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--primary);
             cursor: pointer;
         }
 
         .option-item.selected {
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(0, 245, 212, 0.08);
             border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.1);
         }
 
-        /* --- КОПЧИЊА --- */
+        /* --- ИНТЕРФЕЈСНИ КОПЧИЊА --- */
         .btn-group {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
+            gap: 20px;
         }
 
         .btn {
-            background: var(--primary);
+            background: #070d1e;
             color: var(--text-main);
-            border: none;
+            border: 1px solid var(--border-color);
             padding: 14px 28px;
-            border-radius: 10px;
+            border-radius: 6px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        .btn:hover:not(:disabled) {
+            background: var(--option-hover);
+            border-color: #94a3b8;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary);
+            color: #050811;
+            box-shadow: 0 0 20px var(--primary);
         }
 
         .btn:disabled {
-            background: #4b5563;
-            color: #9ca3af;
+            opacity: 0.25;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--option-bg);
-            transform: translateY(-2px);
-            box-shadow: none;
-        }
-
-        /* --- ПРЕГЛЕД ПРЕД СУБМИТ --- */
+        /* --- КОНТРОЛНА ТАБЛА ЗА ПРЕГЛЕД --- */
         .review-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-bottom: 30px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .review-item {
-            background: #111827;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid var(--accent);
-        }
-
-        .review-item.unanswered {
-            border-left-color: var(--error);
-        }
-
-        /* --- РЕЗУЛТАТИ И ПРЕГЛЕД НА ГРЕШКИ --- */
-        .result-title {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .grade-box {
-            text-align: center;
-            font-size: 3.2rem;
-            font-weight: 900;
-            color: var(--accent);
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-        }
-
-        .result-details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
             margin-bottom: 35px;
         }
 
-        .result-detail-card {
-            background: #111827;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
+        .review-item {
+            background: #070d1e;
+            padding: 16px 22px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
         }
 
-        .result-detail-card.success-card { border-top: 4px solid var(--success); }
-        .result-detail-card.error-card { border-top: 4px solid var(--error); }
+        .review-item:hover {
+            border-color: var(--primary);
+            background: rgba(0, 245, 212, 0.03);
+        }
 
-        .result-detail-val {
-            font-size: 1.5rem;
+        .status-badge {
+            font-size: 0.85rem;
             font-weight: bold;
-            margin-top: 5px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-filled { background: rgba(0, 245, 212, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .status-empty { background: rgba(247, 37, 133, 0.15); color: var(--error); border: 1px solid var(--error); }
+
+        /* --- ИЗВЕШТАЈ И РЕЗУЛТАТИ --- */
+        .grade-box {
+            text-align: center;
+            font-size: 2.4rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 25px 0;
+            text-shadow: 0 0 15px rgba(254, 228, 64, 0.4);
+            letter-spacing: 0.5px;
         }
 
-        .results-review-container {
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .result-mini-card {
+            background: #070d1e;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .results-review-section {
             margin-top: 40px;
             border-top: 1px solid var(--border-color);
             padding-top: 30px;
         }
 
-        .result-q-block {
-            background: #111827;
-            padding: 20px;
-            border-radius: 12px;
+        .log-item {
+            background: #070d1e;
+            padding: 25px;
+            border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
         }
 
-        .result-q-status {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
+        .log-status {
             font-size: 0.8rem;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+        .log-correct { background: rgba(0, 245, 212, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .log-incorrect { background: rgba(247, 37, 133, 0.15); color: var(--error); border: 1px solid var(--error); }
+
+        .log-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
         }
 
-        .status-correct { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-incorrect { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+        .log-opt-row {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            border: 1px solid transparent;
+        }
+        .log-opt-correct { background: rgba(0, 245, 212, 0.08); border-color: var(--primary); color: #ffffff; }
+        .log-opt-wrong { background: rgba(247, 37, 133, 0.08); border-color: var(--error); }
+        .log-opt-normal { background: var(--card-bg); border-color: var(--border-color); }
 
         .explanation-box {
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--accent);
-            padding: 12px 16px;
+            background: rgba(254, 228, 64, 0.04);
+            border-left: 3px solid var(--accent);
+            padding: 14px 18px;
             margin-top: 15px;
-            border-radius: 0 8px 8px 0;
             font-size: 0.95rem;
-            color: #e5e7eb;
+            line-height: 1.5;
+            border-radius: 0 6px 6px 0;
+            color: #e2e8f0;
         }
-
-        .ans-indicator {
-            margin-left: auto;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-        .ans-correct-text { color: var(--success); }
-        .ans-wrong-text { color: var(--error); }
-
-        /* Скролбар оптимизација */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -364,7 +382,8 @@
     <div id="intro-screen" class="card">
         <div class="intro-header">
             <h1>Испит за сертификација на Kubernetes</h1>
-            <p>Тест за сеопфатна евалуација на знаењата за концептот, управувањето и животните циклуси на Pod-овите (Дел 2).</p>
+            <h2>Pod-ови (Дел 2)</h2>
+            <p>Овој модул е специјализиран за проценка на вашето напредно знаење за животниот циклус на Pod-овите, фазите на контејнерите, Init и Sidecar архитектурите, политиките на рестартирање и Probes за дијагностика на здравјето.</p>
         </div>
         
         <div class="meta-grid">
@@ -373,8 +392,8 @@
                 <div class="meta-value">20</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label">Време за работа</div>
-                <div class="meta-value">30 мин</div>
+                <div class="meta-label">Вкупно поени</div>
+                <div class="meta-value">20</div>
             </div>
             <div class="meta-item">
                 <div class="meta-label">Минимум за премин</div>
@@ -382,7 +401,7 @@
             </div>
         </div>
 
-        <button class="btn" id="start-btn" style="width: 100%;">Започни го испитот</button>
+        <button class="btn btn-primary" id="start-btn" style="width: 100%; margin-top: 10px;">Започни го испитот</button>
     </div>
 
     <div id="quiz-screen" class="card hidden">
@@ -390,85 +409,73 @@
             <div class="progress-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
-            <div id="timer" class="timer-box">30:00</div>
-        </div>
-
-        <div class="info-bar">
-            <span id="question-counter">Прашање: 1 од 20</span>
-            <span id="question-type-hint">Изберете еден точен одговор</span>
+            <div class="info-bar">
+                <span id="question-counter">Прашање 1 од 20</span>
+                <span id="question-weight" class="badge-weight">ЛЕСНО</span>
+            </div>
         </div>
 
         <div id="question-container">
-            <p id="question-text" class="question-text">Текст на прашањето</p>
-            <div id="options-list" class="options-list">
-                </div>
+            <p id="question-text" class="question-text">Вчитавање на прашање...</p>
+            <div id="options-list" class="options-list"></div>
         </div>
 
         <div class="btn-group">
-            <button id="prev-btn" class="btn btn-secondary">Претходно</button>
-            <button id="next-btn" class="btn">Следно</button>
+            <button id="prev-btn" class="btn">Претходно</button>
+            <button id="next-btn" class="btn btn-primary">Следно</button>
         </div>
     </div>
 
     <div id="review-screen" class="card hidden">
         <div class="intro-header">
-            <h1>Преглед на одговорите</h1>
-            <p>Проверете ги статусните содржини на прашањата пред конечно да го испратите испитот за евалуација.</p>
+            <h1>Преглед на конфигурацијата на одговори</h1>
+            <p>Направете последна валидација на вашите селектирани одговори пред целосно извршување на процесот на евалуација.</p>
         </div>
 
-        <div id="review-list" class="review-list">
-            </div>
+        <div id="review-list" class="review-list"></div>
 
         <div class="btn-group">
-            <button id="back-to-quiz-btn" class="btn btn-secondary">Назад кон прашањата</button>
-            <button id="submit-exam-btn" class="btn" style="background: var(--success);">Заврши и оцени</button>
+            <button id="back-btn" class="btn">Назад кон дијагностика</button>
+            <button id="submit-btn" class="btn btn-primary">Предај на евалуација</button>
         </div>
     </div>
 
     <div id="result-screen" class="card hidden">
         <div class="intro-header">
-            <h1 class="result-title">Краен биланс од испитот</h1>
-            <p id="result-status-text">Успешно го поминавте испитот!</p>
+            <h1>Репорт од Евалуација</h1>
+            <p id="result-status-text">Статус порака за перформансот...</p>
         </div>
 
-        <div id="grade-box" class="grade-box">Оценка А</div>
+        <div id="grade-box" class="grade-box">Генерирање оценка...</div>
 
-        <div class="result-details-grid">
-            <div class="result-detail-card">
-                <div class="meta-label">Процент на точни</div>
-                <div id="res-percent" class="result-detail-val">0%</div>
+        <div class="result-grid">
+            <div class="result-mini-card">
+                <div class="meta-label">Вкупно точни решенија</div>
+                <div id="res-points" class="meta-value">0 / 20</div>
             </div>
-            <div class="result-detail-card">
-                <div class="meta-label">Вкупен Скор</div>
-                <div id="res-score" class="result-detail-val">0 / 20</div>
-            </div>
-            <div class="result-detail-card success-card">
-                <div class="meta-label">Точни прашања</div>
-                <div id="res-correct" class="result-detail-val" style="color: var(--success);">0</div>
-            </div>
-            <div class="result-detail-card error-card">
-                <div class="meta-label">Погрешни прашања</div>
-                <div id="res-wrong" class="result-detail-val" style="color: var(--error);">0</div>
+            <div class="result-mini-card">
+                <div class="meta-label">Точност на меморијата</div>
+                <div id="res-percent" class="meta-value">0%</div>
             </div>
         </div>
 
-        <button id="restart-btn" class="btn" style="width: 100%; margin-bottom: 30px;">Полагај го испитот повторно</button>
+        <button id="restart-btn" class="btn" style="width: 100%; margin-bottom: 30px;">Алоцирај нов обид</button>
 
-        <div class="results-review-container">
-            <h2 style="margin-bottom: 20px;">Детален преглед на прашањата и грешките:</h2>
-            <div id="detailed-results-log">
-                </div>
+        <div class="results-review-section">
+            <h3 style="margin-bottom: 25px; color: #ffffff; letter-spacing: 0.5px;">Архитектонска ревизија на перформансот:</h3>
+            <div id="detailed-log"></div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // ИСПИТНА БАЗА НА ПОДАТОЦИ (СИТЕ 20 ПРАШАЊА ОД ДЕЛ 2)
-    const originalQuestions = [
+    // ОРИГИНАЛНА БАЗА НА ПОДАТОЦИ ОД ОДГОВОРНИОТ HTML ТЕСТ ЗА POD-ОВИ
+    const originalDatabase = [
         {
             id: 1,
             type: "single",
+            weight: "Лесно",
             question: "Која е основната карактеристика на Pod-овите во Kubernetes во однос на нивната природа?",
             options: [
                 { id: "A", text: "Тие се долготрајни и непроменливи." },
@@ -477,265 +484,281 @@
                 { id: "D", text: "Тие се долготрајни и променливи." }
             ],
             correct: ["B"],
-            explanation: "Pod-овите се минливи (умираат) и непроменливи (immutable); за каква било промена се креира нов објект."
+            explanation: "Pod-овите во Kubernetes се создаваат, им се доделува уникатен ID (UID) и се извршуваат на нивниот јазол додека не завршат или не се избришат. Тие се сметаат за минливи (ephemeral) и непроменливи (disposable) објекти."
         },
         {
             id: 2,
             type: "single",
+            weight: "Лесно",
             question: "Што се случува со Pod ако работниот јазол на кој е распореден откаже?",
             options: [
                 { id: "A", text: "Pod-от автоматски се преместува на друг здрав јазол." },
                 { id: "B", text: "Pod-от исчезнува и контролерот (ако постои) ќе создаде нов." },
                 { id: "C", text: "Kubelet се обидува да го рестартира Pod-от на истиот откажан јазол." },
-                { id: "D", text: "API серверот го задржува Pod-от во состојба „Pending\" додека јазолот не се врати." }
+                { id: "D", text: "API серверот го зачувува Pod-от во состојба „Pending“ додека јазолот не се врати." }
             ],
             correct: ["B"],
-            explanation: "Ако јазолот откаже, Pod-от исчезнува. Контролерот (доколку постои) веднаш ќе создаде нов Pod на преостанатите здрави јазли, но со целосно нова IP адреса."
+            explanation: "Pod-овите сами по себе не се преместуваат (evicted) на други јазли при падови. Ако јазолот откаже, Pod-от се брише по истекување на тајмаутот, а висок степен на контролер (пр. Deployment) креира комплетно нов заменски Pod на друг јазол."
         },
         {
             id: 3,
             type: "multiple",
-            question: "Кои од следниве се предности на користењето на контролери (како Deployment) за управување со Pod-ови, во споредба со директното распоредување на Pod-ови?",
+            weight: "Лесно",
+            question: "Кои од следниве се предности на користењето на повеќе контејнери во рамките на еден ист Pod? (Изберете ги сите точни)",
             options: [
-                { id: "A", text: "Обезбедуваат автоматско скалирање." },
-                { id: "B", text: "Овозможуваат ажурирања без прекин (rolling updates)." },
-                { id: "C", text: "Гарантираат дека Pod-от ќе ја задржи истата IP адреса при рестартирање." },
-                { id: "D", text: "Обезбедуваат само-лекување (self-healing) на апликациите." }
+                { id: "A", text: "Тие можат да споделуваат складиште за податоци (Volumes) локално." },
+                { id: "B", text: "Тие секогаш работат на различни физички јазли со цел висока достапност." },
+                { id: "C", text: "Комуницираат директно преку 'localhost'." },
+                { id: "D", text: "Се скалираат независно еден од друг во рамките на истиот Pod." }
             ],
-            correct: ["A", "B", "D"],
-            explanation: "Контролерите обезбедуваат автоматско скалирање, ажурирања без прекин и само-лекување. Тие експлицитно не ја гарантираат истата IP адреса."
+            correct: ["A", "C"],
+            explanation: "Контејнерите во ист Pod делат ист мрежен простор (можат да зборуваат преку localhost) и можат да монтираат исти мемориски волумени. Сепак, тие секогаш се извршуваат ко-лоцирани на ист јазол и се скалираат строго заедно."
         },
         {
             id: 4,
             type: "single",
-            question: "Која kubectl команда ќе ви овозможи да видите детални информации за одреден Pod, вклучувајќи настани и состојба на контејнерите?",
+            weight: "Средно",
+            question: "Која фаза ја означува состојбата во која Pod-от е прифатен од Kubernetes системот, но еден или повеќе контејнери сè уште не се креирани или преземени од регистарот?",
             options: [
-                { id: "A", text: "kubectl get pods" },
-                { id: "B", text: "kubectl logs <име-на-под>" },
-                { id: "C", text: "kubectl describe pods <име-на-под>" },
-                { id: "D", text: "kubectl exec <име-на-под>" }
+                { id: "A", text: "Running" },
+                { id: "B", text: "Pending" },
+                { id: "C", text: "Succeeded" },
+                { id: "D", text: "Unknown" }
             ],
-            correct: ["C"],
-            explanation: "Командата `kubectl describe pods` дава детални конфигурациски информации за Pod-от, вклучувајќи ги системските настани (Events) и моменталната состојба."
+            correct: ["B"],
+            explanation: "Во `Pending` фазата, Pod-от е регистриран во etcd, но сè уште се наоѓа во процес на селекција на јазол (scheduling) или преземање на контејнерските слики преку мрежата."
         },
         {
             id: 5,
             type: "single",
-            question: "Ако имате апликација која извршува краткотрајна задача (на пр., скрипта за обработка на податоци), која е препорачаната политика за рестартирање на Pod?",
+            weight: "Средно",
+            question: "Кој тип на Probe прв се извршува и служи за да го блокира извршувањето на останатите сонди сè додека апликацијата не се покрене целосно?",
             options: [
-                { id: "A", text: "Always" },
-                { id: "B", text: "OnFailure" },
-                { id: "C", text: "Never" },
-                { id: "D", text: "RestartAlways" }
+                { id: "A", text: "Liveness Probe" },
+                { id: "B", text: "Readiness Probe" },
+                { id: "C", text: "Startup Probe" },
+                { id: "D", text: "Initial Probe" }
             ],
-            correct: ["B"],
-            explanation: "За краткотрајни бач-апликации, OnFailure или Never се препорачуваат како најсоодветни политики, најчесто обвиткани во рамките на Jobs ресурси. Always е резервирано за долготрајни сервиси."
+            correct: ["C"],
+            explanation: "`Startup Probe` се користи кај бавни апликации. Додека оваа сонда не успее, сите други сонди (Liveness/Readiness) се оневозможени за да се спречи превремено рестартирање на контејнерот."
         },
         {
             id: 6,
             type: "multiple",
-            question: "Кои од следниве ресурси ги споделуваат повеќе контејнери кои работат во истиот Pod?",
+            weight: "Средно",
+            question: "Кои од следниве се валидни вредности за параметарот „restartPolicy“ кај еден Pod? (Изберете ги сите точни)",
             options: [
-                { id: "A", text: "Мрежен стек (IP адреса)" },
-                { id: "B", text: "Датотечни системи (преку волумени)" },
-                { id: "C", text: "Сопствени контејнерски слики" },
-                { id: "D", text: "IPC (Inter-Process Communication) именски простор" }
+                { id: "A", text: "Always" },
+                { id: "B", text: "OnFailure" },
+                { id: "C", text: "Never" },
+                { id: "D", text: "OnCrash" }
             ],
-            correct: ["A", "B", "D"],
-            explanation: "Контејнерите во ист Pod споделуваат мрежен стек, волумени за складирање и IPC именски простор. Секој поединечен контејнер сепак си ја задржува сопствената контејнерска слика."
+            correct: ["A", "B", "C"],
+            explanation: "Дозволените вредности за `restartPolicy` се експлицитно: `Always` (стандардно), `OnFailure` (само при грешка со non-zero излезен код) и `Never`."
         },
         {
             id: 7,
             type: "single",
-            question: "Што претставува pod network во Kubernetes?",
+            weight: "Средно",
+            question: "Доколку еден апликациски контејнер падне на Liveness Probe проверка, каква акција ќе преземе Kubelet во позадина?",
             options: [
-                { id: "A", text: "Мрежа која ги поврзува контролните јазли со работните јазли." },
-                { id: "B", text: "Рамна overlay мрежа која овозможува директна комуникација помеѓу сите Pod-ови." },
-                { id: "C", text: "Надворешна мрежа за пристап до апликациите распоредени во кластерот." },
-                { id: "D", text: "Мрежа која ги изолира Pod-овите едни од други за безбедносни цели." }
+                { id: "A", text: "Ќе го исклучи сообраќајот од соодветниот Service кон тој Pod, но контејнерот ќе остане активен." },
+                { id: "B", text: "Веднаш ќе го присили контејнерот на рестартирање согласно дефинираната политика 'restartPolicy'." },
+                { id: "C", text: "Ќе го премести целиот Pod на друг слободен работен јазол." },
+                { id: "D", text: "Ќе го избрише Pod-от од кластерот без генерирање замена." }
             ],
             correct: ["B"],
-            explanation: "„Pod network\" е рамна overlay мрежа во која секој Pod добива уникатна IP адреса и овозможува директна меѓусебна комуникација без потреба од NAT рутирање."
+            explanation: "Кога `Liveness Probe` ќе потфрли, Kubernetes заклучува дека контејнерот е во нефункционална (deadlock) состојба и Kubelet веднаш го убива и рестартира соодветниот контејнер."
         },
         {
             id: 8,
             type: "single",
-            question: "Која е целта на Labels во Kubernetes Pod-овите?",
+            weight: "Тешко",
+            question: "Како се однесуваат Init контејнерите во однос на главните апликациски контејнери за време на животниот циклус на еден Pod?",
             options: [
-                { id: "A", text: "За складирање на експериментални податоци за алатки од трети страни." },
-                { id: "B", text: "За групирање на Pod-ови и нивно поврзување со други објекти." },
-                { id: "C", text: "За дефинирање на минималните и максималните ресурси што може да ги користи Pod-от." },
-                { id: "D", text: "За проверка на однесувањето на контејнерот (startup, readiness, liveness)." }
+                { id: "A", text: "Тие работат паралелно со главните контејнери во текот на целото времетраење." },
+                { id: "B", text: "Тие мора да се извршат и успешно да завршат еден по друг пред воопшто да започне покренувањето на главните контејнери." },
+                { id: "C", text: "Тие започнуваат со работа дури откако Readiness сондата на главниот контејнер ќе стане зелена." },
+                { id: "D", text: "Се извршуваат само при бришење на Pod-от за чистење на преостанати ресурси." }
             ],
             correct: ["B"],
-            explanation: "Labels (етикети) се клуч-вредност парови прикачени за објектите. Се користат за логичко организирање, групирање и поврзување (преку Selectors) со услуги како Services и Deployments."
+            explanation: "`Init контејнерите` се извршуваат серијално (еден по еден). Секој мора успешно да заврши (излезен код 0) пред следниот да се стартува. Главните контејнери не можат да започнат додека сите инит солуции не се готови."
         },
         {
             id: 9,
             type: "single",
-            question: "Во кој случај е соодветно да се користи kubectl exec -it <име-на-под> sh?",
+            weight: "Лесно",
+            question: "Која сонда (Probe) му кажува на Kubernetes дека апликацијата е подготвена да прима кориснички сообраќај преку Service објектите?",
             options: [
-                { id: "A", text: "За распоредување на нов Pod во кластерот." },
-                { id: "B", text: "За добивање интерактивна школка во работен Pod." },
-                { id: "C", text: "За прегледување на логовите на Pod." },
-                { id: "D", text: "За бришење на Pod од кластерот." }
+                { id: "A", text: "Liveness Probe" },
+                { id: "B", text: "Startup Probe" },
+                { id: "C", text: "Readiness Probe" },
+                { id: "D", text: "LiveAndReady Probe" }
             ],
-            correct: ["B"],
-            explanation: "Командата `kubectl exec -it <име-на-под> sh` или `bash` се користи за отворање и добивање на интерактивна терминалска школка директно во активен контејнер."
+            correct: ["C"],
+            explanation: "Доколку `Readiness Probe` не е успешна, IP адресата на Pod-от се отстранува од сите Endpoint-и на поврзаните Services, со што се спречува испраќање сообраќај до него."
         },
         {
             id: 10,
             type: "multiple",
-            question: "Кои од следниве се фази во животниот циклус на Pod?",
+            weight: "Тешко",
+            question: "При процесот на деактивирање на еден Pod (Graceful Termination), кои два чекори се случуваат паралелно во кластерот? (Изберете ги сите точни)",
             options: [
-                { id: "A", text: "Pending" },
-                { id: "B", text: "Running" },
-                { id: "C", text: "Stopped" },
-                { id: "D", text: "Succeeded" }
+                { id: "A", text: "Kubelet го испраќа почетниот SIGTERM сигнал до процесите во контејнерот." },
+                { id: "B", text: "Контејнерот веднаш се исклучува од струја преку SIGKILL сигнал без чекање." },
+                { id: "C", text: "Ендпоинт контролерот го отстранува Pod-от од листата на активни ендпоинти кај сите соодветни Services." },
+                { id: "D", text: "Волумените за складирање веднаш се реформатираат." }
             ],
-            correct: ["A", "B", "D"],
-            explanation: "Официјалните фази на еден Pod се Pending, Running, Succeeded, Failed и Unknown. „Stopped\" не претставува валидна фаза во животниот циклус."
+            correct: ["A", "C"],
+            explanation: "При гасење, Kubelet праќа SIGTERM сигнал до апликацијата за таа да почне чистење на конекции. Истовремено и независно, контролната рамнина го трга Pod-от од рутите на Services за да прекине приливот на нов сообраќај."
         },
         {
             id: 11,
             type: "single",
-            question: "Ако сакате да го промените метаподатоците на веќе распореден Pod, што е препорачаниот начин да го направите тоа во Kubernetes?",
+            weight: "Лесно",
+            question: "Што претставуваат т.н. „Статични Pod-ови“ (Static Pods) во Kubernetes архитектурата?",
             options: [
-                { id: "A", text: "Директно изменете го YAML манифестот на Pod-от и применете ги промените." },
-                { id: "B", text: "Користете kubectl edit pod <име-на-под> за да ги измените метаподатоците." },
-                { id: "C", text: "Уништете го стариот Pod и креирајте нов со изменетите метаподатоци." },
-                { id: "D", text: "Користете kubectl patch pod <име-на-под> за да ги ажурирате само потребните полиња." }
+                { id: "A", text: "Pod-ови кои никогаш не трошат CPU и Memory ресурси." },
+                { id: "B", text: "Pod-ови со кои менаџира директно Kubelet на конкретен јазол, целосно заобиколувајќи го API серверот." },
+                { id: "C", text: "Pod-ови дефинирани исклучиво во etcd базата без можност за промена." },
+                { id: "D", text: "Алтернативно име за објектите од типот Deployments." }
             ],
-            correct: ["C"],
-            explanation: "Бидејќи Pod-овите се фундаментално непроменливи (immutable) објекти, препорачаниот начин за промена на нивните метаподатоци или спецификации е уништување на стариот и креирање на нов."
+            correct: ["B"],
+            explanation: "Static Pods се креираат преку поставување на YAML манифест во специфичен директориум на јазолот што го следи Kubelet. Kubelet сам ги надгледува и рестартира, независно од главниот контролен леер."
         },
         {
             id: 12,
             type: "single",
-            question: "Кој шаблон за повеќе контејнери во Pod е најпопуларен и обично извршува секундарна задача за главниот контејнер (на пр., логирање или метрики)?",
+            weight: "Средно",
+            question: "Каков механизам користи Kubernetes за да им овозможи на контејнерите во ист Pod да споделуваат податоци во реално време, дури и ако едниот контејнер се рестартира?",
             options: [
-                { id: "A", text: "Adapter" },
-                { id: "B", text: "Ambassador" },
-                { id: "C", text: "Init" },
-                { id: "D", text: "Sidecar" }
+                { id: "A", text: "Копирање преку SSH протокол од еден контејнер во друг." },
+                { id: "B", text: "Заеднички монтиран мемориски простор дефиниран преку Pod Volumes." },
+                { id: "C", text: "Преку преземање на податоците од надворешен Git репозиториум на секои 5 секунди." },
+                { id: "D", text: "Контејнерите во ист Pod немаат право да споделуваат податоци." }
             ],
-            correct: ["D"],
-            explanation: "Sidecar е најзастапениот и најпопуларен архитектонски шаблон за повеќе контејнери. Извршува помошни задачи за главната апликација, како испорака на логови или метрики."
+            correct: ["B"],
+            explanation: "Со дефинирање на `spec.volumes` на ниво на Pod и негово монтирање преку `volumeMounts` кај соодветните контејнери, податоците опстојуваат независно од животниот век на самите контејнери."
         },
         {
             id: 13,
             type: "single",
-            question: "Која е примарната разлика помеѓу Resource requests и Resource limits за Pod-ови?",
+            weight: "Лесно",
+            question: "Кој е стандардниот грејс-период (Grace Period) за пријатно исклучување на Pod пред Kubernetes присилно да го уништи преку SIGKILL сигнал?",
             options: [
-                { id: "A", text: "Requests се за CPU, a limits се за меморија." },
-                { id: "B", text: "Requests ја специфицираат минималната потребна достапност, додека limits ја одредуваат максималната количина што може да се додели." },
-                { id: "C", text: "Requests се за развојни средини, a limits се за продукциски средини." },
-                { id: "D", text: "Requests се за складирање, a limits се за мрежен проток." }
+                { id: "A", text: "10 секунди" },
+                { id: "B", text: "30 секунди" },
+                { id: "C", text: "60 секунди" },
+                { id: "D", text: "5 секунди" }
             ],
             correct: ["B"],
-            explanation: "Resource requests го означуваат минимумот ресурси кои K8s гарантира дека ќе ги резервира на јазолот при планирање, додека limits го дефинираат апсолутниот лимит што контејнерот не смее да го надмине."
+            explanation: "Стандардната вредност за `terminationGracePeriodSeconds` изнесува точно 30 секунди. Доколку апликацијата не се изгаси сама дотога, Kubelet испраќа SIGKILL."
         },
         {
             id: 14,
             type: "multiple",
-            question: "Кои од следниве именски простори (namespaces) ги има секој Pod?",
+            weight: "Средно",
+            question: "Кои од следниве механизми за извршување на проверки (Probes) се поддржани од страна на Kubelet? (Изберете ги сите точни)",
             options: [
-                { id: "A", text: "net" },
-                { id: "B", text: "pid" },
-                { id: "C", text: "user" },
-                { id: "D", text: "mnt" }
+                { id: "A", text: "Извршување команда внатре во контејнерот (ExecAction)." },
+                { id: "B", text: "HTTP GET барање до одредена патека (HTTPGetAction)." },
+                { id: "C", text: "Проверка на отворена TCP порта (TCPSocketAction)." },
+                { id: "D", text: "Испраќање на СМС порака до администраторот." }
             ],
-            correct: ["A", "B", "D"],
-            explanation: "Секој Pod изолира и поседува сопствени Линукс именски простори за мрежа (net), процеси (pid), монтирање датотеки (mnt) и IPC. „user\" именскиот простор не е стандардно изолиран во K8s."
+            correct: ["A", "B", "C"],
+            explanation: "Сондите можат да извршат три типа на акции: да извршат внатрешна CLI команда (`exec`), да испратат мрежно `httpGet` барање, или да се обидат да отворат нисконивеоска сокета (`tcpSocket`)."
         },
         {
             id: 15,
             type: "single",
-            question: "Која е стандардната политика за рестартирање на Pod во Kubernetes?",
+            weight: "Тешко",
+            question: "Што претставува патернот на дизајн „Sidecar Container“ во рамките на еден Pod?",
             options: [
-                { id: "A", text: "OnFailure" },
-                { id: "B", text: "Never" },
-                { id: "C", text: "Always" },
-                { id: "D", text: "RestartOnCrash" }
+                { id: "A", text: "Контејнер кој ја презема улогата на главен веб-сервер по потреба." },
+                { id: "B", text: "Помошен контејнер кој работи паралелно со главната апликација и ги проширува или подобрува нејзините можности (пр. за собирање логови или сервис лепило)." },
+                { id: "C", text: "Контејнер кој се активира само при падови на хардверот." },
+                { id: "D", text: "Специјален хардверски уред приклучен на серверот." }
             ],
-            correct: ["C"],
-            explanation: "Стандардната вредност за политиките на рестарт (restartPolicy) во K8s е поставена на Always, што значи дека Kubelet постојано ќе се обидува да го подигне контејнерот ако тој падне."
+            correct: ["B"],
+            explanation: "Sidecar патернот користи ко-лоциран контејнер за периферни задачи (како Fluentd за екстракција на логови или Envoy во Service Mesh средини), овозможувајќи му на главниот контејнер да остане фокусиран на бизнис логиката."
         },
         {
             id: 16,
             type: "single",
-            question: "Ако сакате да извршите команда во работен Pod, која kubectl команда би ја користеле?",
+            weight: "Средно",
+            question: "Каков тип на мрежна изолација постои помеѓу контејнерите што се наоѓаат внатре во ИСТ Pod?",
             options: [
-                { id: "A", text: "kubectl run <име-на-под> <команда>" },
-                { id: "B", text: "kubectl exec <име-на-под> <команда>" },
-                { id: "C", text: "kubectl apply <име-на-под> <команда>" },
-                { id: "D", text: "kubectl attach <име-на-под> <команда>" }
+                { id: "A", text: "Помеѓу нив има силна изолација и тие мора да комуницираат преку јавни IP адреси." },
+                { id: "B", text: "Нема мрежна изолација; тие делат ист мрежен простор (Network Namespace) и порти." },
+                { id: "C", text: "Изолацијата зависи од верзијата на оперативниот систем на серверот." },
+                { id: "D", text: "Комуникацијата е овозможена само преку шифрирани VPN тунели." }
             ],
             correct: ["B"],
-            explanation: "За еднократно извршување на специфична наредба/команда во рамките на некој активен Pod без да влегувате во интерактивен режим, се користи `kubectl exec <име-на-под> <команда>`."
+            explanation: "Бидејќи контејнерите во ист Pod споделуваат ист мрежен простор, тие не смеат да се обидуваат да ги заземат истите порти (бидејќи ќе настане конфликт) и се гледаат меѓусебно како процеси на ист localhost."
         },
         {
             id: 17,
             type: "single",
-            question: "Кој шаблон за повеќе контејнери во Pod гарантира дека контејнерот ќе стартува и завршува пред главниот контејнер (на пр., за повлекување содржина или поставување привилегии)?",
+            weight: "Лесно",
+            question: "Каде се дефинира конфигурацијата на сондите (Liveness/Readiness Probes) во еден Kubernetes манифест?",
             options: [
-                { id: "A", text: "Sidecar" },
-                { id: "B", text: "Adapter" },
-                { id: "C", text: "Init" },
-                { id: "D", text: "Ambassador" }
+                { id: "A", text: "На ниво на јазол во kubeconfig датотеката." },
+                { id: "B", text: "Специфично под дефиницијата на секој поединечен контејнер во `spec.containers` секцијата." },
+                { id: "C", text: "Глобално во API Server подесувањата." },
+                { id: "D", text: "Во табелата со рутирање на мрежниот рутер." }
             ],
-            correct: ["C"],
-            explanation: "Init контејнерите се специјализирани контејнери кои гарантирано извршуваат и завршуваат до крај пред да почне иницијализацијата на кој било од главните апликациски контејнери."
+            correct: ["B"],
+            explanation: "Проверките на здравјето се вршат по контејнер, па затоа секој контејнер посебно ги дефинира своите `livenessProbe`, `readinessProbe` или `startupProbe` параметри во соодветниот YAML блок."
         },
         {
             id: 18,
             type: "multiple",
-            question: "Кои од следниве тврдења се точни во врска со DNS резолуцијата на Pod-овите во Kubernetes?",
+            weight: "Тешко",
+            question: "Кои од следниве искази во врска со метаподатоците и идентитетот на еден Pod се точни? (Изберете ги сите точни)",
             options: [
-                { id: "A", text: "Секој Pod добива своја уникатна IP адреса." },
-                { id: "B", text: "Името на хостот на контејнерот е наследено од името на Pod-от." },
-                { id: "C", text: "DNS името на Pod-от е статично и не се менува во текот на неговиот животен циклус." },
-                { id: "D", text: "Имињата на Pod-овите треба да бидат валидни DNS имиња." }
+                { id: "A", text: "Секој Pod добива една уникатна IP адреса во рамките на кластерот." },
+                { id: "B", text: "Името на хостот (hostname) внатре во контејнерот стандардно одговара на името на Pod-от." },
+                { id: "C", text: "IP адресата на еден Pod останува строго статична и непроменета дури и ако Pod-от се рекреира." },
+                { id: "D", text: "Имињата на Pod-овите мора да бидат компатибилни со DNS стандардите (RFC 1123)." }
             ],
             correct: ["A", "B", "D"],
-            explanation: "Секој Pod добива своја IP адреса, името на хостот се пресликува од името на самиот Pod, и самите имиња мора да бидат во валиден DNS формат. DNS името на Pod-от НЕ е статично ако тој се рекреира."
+            explanation: "Секој Pod има своја IP адреса во рамките на кластерската мрежа, а името на Pod-от станува локален hostname. Името мора да биде валиден DNS поддомен. Како и да е, IP адресата НЕ е статична; при секое ново креирање (рекреирање) на Pod-от, тој добива нова IP адреса."
         },
         {
             id: 19,
             type: "single",
-            question: "Која е главната цел на Probes во Kubernetes Pod-овите?",
+            weight: "Средно",
+            question: "Како се нарекува параметарот во конфигурацијата на сондите кој дефинира колку секунди Kubelet треба да почека по стартот на контејнерот пред да ја изврши првата проверка?",
             options: [
-                { id: "A", text: "За дефинирање на безбедносни политики за Pod-от." },
-                { id: "B", text: "За контрола на тоа каде ќе бидат распоредени Pod-овите." },
-                { id: "C", text: "За проверка на однесувањето на контејнерот (startup, readiness, liveness)." },
-                { id: "D", text: "За групирање на Pod-ови за логички цели." }
+                { id: "A", text: "periodSeconds" },
+                { id: "B", text: "timeoutSeconds" },
+                { id: "C", text: "initialDelaySeconds" },
+                { id: "D", text: "failureThreshold" }
             ],
             correct: ["C"],
-            explanation: "Probes се користат за дијагностика и проверка на животот и здравјето на контејнерите, поделени на три типа: startup, readiness и liveness соодветно."
+            explanation: "`initialDelaySeconds` дефинира одложено активирање на сондата, давајќи и време на апликацијата да ги вчита конфигурациите во меморија пред да почнат агресивните тестови за здравје."
         },
         {
             id: 20,
             type: "single",
-            question: "Ако Pod е распореден директно (статичен Pod) и контејнерот во него се прекине, што ќе се обиде да направи Kubelet?",
+            weight: "Тешко",
+            question: "Доколку контејнер што припаѓа на Статичен Pod (Static Pod) престане со работа или доживее дефект, каква акција ќе преземе локалниот Kubelet?",
             options: [
-                { id: "A", text: "Kubelet ќе го извести API серверот да распореди нов Pod." },
-                { id: "B", text: "Kubelet ќе се обиде да го рестартира контејнерот некое време." },
-                { id: "C", text: "Kubelet ќе го означи Pod-от како Failed и нема да преземе понатамошни дејства." },
-                { id: "D", text: "Kubelet ќе го избрише Pod-от од јазолот." }
+                { id: "A", text: "Ќе испрати барање до Cloud Provider-от за замена на целиот сервер." },
+                { id: "B", text: "Автоматски ќе се обиде локално да го рестартира контејнерот за да ја врати посакуваната состојба." },
+                { id: "C", text: "Не презема ништо, бидејќи статичните Pod-ови работат без никакви гаранции." },
+                { id: "D", text: "Веднаш ќе го пријави падот до etcd и ќе чека одобрение од Scheduler-от." }
             ],
             correct: ["B"],
-            explanation: "Кај статичните Pod-ови со кои Kubelet управува локално без контролен леер, при прекин на контејнерот, локалниот Kubelet агент упорно ќе се обидува да го рестартира контејнерот на тој јазол."
+            explanation: "Иако статичните Pod-ови немаат поддршка од софистицираните контролери на високи нивоа, Kubelet има внатрешна контролна јамка која се грижи да ги рестартира паднатите контејнери на тој локален јазол."
         }
     ];
 
-    // КЛОНИРАЊЕ И РАБОТНА ИНСТАНЦА НА ПРАШАЊАТА
-    let examQuestions = [];
-    let currentQuestionIndex = 0;
-    let userAnswers = {}; // Клуч е индексот на прашањето, вредност е низа од избрани опции (ID-а)
-    let totalSeconds = 30 * 60; // 30 минути
-    let timerInterval = null;
+    let quizQuestions = [];
+    let currentIdx = 0;
+    let userSelections = {}; 
 
-    // СЕЛЕКТОРИ НА ЕЛЕМЕНТИ ОД DOM
+    // DOM СЕЛЕКТОРИ
     const introScreen = document.getElementById('intro-screen');
     const quizScreen = document.getElementById('quiz-screen');
     const reviewScreen = document.getElementById('review-screen');
@@ -744,369 +767,280 @@
     const startBtn = document.getElementById('start-btn');
     const nextBtn = document.getElementById('next-btn');
     const prevBtn = document.getElementById('prev-btn');
+    const backBtn = document.getElementById('back-btn');
+    const submitBtn = document.getElementById('submit-btn');
     const restartBtn = document.getElementById('restart-btn');
-    const backToQuizBtn = document.getElementById('back-to-quiz-btn');
-    const submitExamBtn = document.getElementById('submit-exam-btn');
 
     const progressBar = document.getElementById('progress-bar');
-    const timerBox = document.getElementById('timer');
     const questionCounter = document.getElementById('question-counter');
-    const questionTypeHint = document.getElementById('question-type-hint');
+    const questionWeight = document.getElementById('question-weight');
     const questionText = document.getElementById('question-text');
     const optionsList = document.getElementById('options-list');
     const reviewList = document.getElementById('review-list');
-    const detailedResultsLog = document.getElementById('detailed-results-log');
+    const detailedLog = document.getElementById('detailed-log');
 
-    // ФУНКЦИЈА ЗА МЕШАЊЕ (SHUFFLE) НА НИЗИ
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+    // Алгоритам за случаен распоред (Fisher-Yates)
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        return array;
+        return arr;
     }
 
-    // ИНИЦИЈАЛИЗАЦИЈА И ПОДГОТОВКА НА ТЕСТОТ
-    function setupExam() {
-        // Длабоко копирање со цел да се зачува оригиналната база
-        examQuestions = JSON.parse(JSON.stringify(originalQuestions));
-        
-        // 1. Измешај го редоследот на сите прашања во тестот
-        shuffleArray(examQuestions);
-        
-        // 2. Измешај го редоследот на понудените опции/одговори за секое прашање посебно
-        examQuestions.forEach(q => {
-            shuffleArray(q.options);
-        });
-
-        // Ресетирање на состојбата
-        currentQuestionIndex = 0;
-        userAnswers = {};
-        totalSeconds = 30 * 60;
+    function setupQuizEnvironment() {
+        quizQuestions = JSON.parse(JSON.stringify(originalDatabase));
+        shuffleArray(quizQuestions);
+        quizQuestions.forEach(item => shuffleArray(item.options));
+        currentIdx = 0;
+        userSelections = {};
     }
 
-    // СТАРТУВАЊЕ НА ТЕСТОТ
     startBtn.addEventListener('click', () => {
-        setupExam();
+        setupQuizEnvironment();
         introScreen.classList.add('hidden');
         quizScreen.classList.remove('hidden');
-        startTimer();
-        renderQuestion();
+        displayQuestion();
     });
 
-    // ТАЈМЕР МЕНАЏМЕНТ
-    function startTimer() {
-        clearInterval(timerInterval);
-        updateTimerDisplay();
-        timerInterval = setInterval(() => {
-            totalSeconds--;
-            updateTimerDisplay();
-            if (totalSeconds <= 0) {
-                clearInterval(timerInterval);
-                alert("Времето за решавање на испитот истече! Системот автоматски преминува кон евалуација.");
-                evaluateExam();
-            }
-        }, 1000);
-    }
+    function displayQuestion() {
+        const q = quizQuestions[currentIdx];
+        
+        questionCounter.textContent = `Прашање ${currentIdx + 1} од ${quizQuestions.length}`;
+        questionWeight.textContent = q.weight;
+        
+        // Различни неонски бои на рамките за различна тежина на прашањата
+        if (q.weight === 'Лесно') {
+            questionWeight.style.borderColor = '#00f5d4';
+            questionWeight.style.color = '#00f5d4';
+        } else if (q.weight === 'Средно') {
+            questionWeight.style.borderColor = '#fee440';
+            questionWeight.style.color = '#fee440';
+        } else {
+            questionWeight.style.borderColor = '#f72585';
+            questionWeight.style.color = '#f72585';
+        }
 
-    function updateTimerDisplay() {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        timerBox.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    // ПРИКАЖУВАЊЕ НА ТЕКОВНО ПРАШАЊЕ
-    function renderQuestion() {
-        const currentQuestion = examQuestions[currentQuestionIndex];
+        questionText.textContent = `${q.question} (${q.type === 'single' ? 'избери еден точен одговор' : 'избери повеќе точни одговори'})`;
         
-        // Освежување на мета информации
-        questionCounter.textContent = `Прашање: ${currentQuestionIndex + 1} од ${examQuestions.length}`;
-        questionTypeHint.textContent = currentQuestion.type === 'single' ? 'Изберете еден точен одговор' : 'Изберете еден или повеќе точни одговори';
-        
-        // Поставување на текст на прашањето
-        questionText.textContent = currentQuestion.question;
-        
-        // Чистење и рендерирање на опциите
         optionsList.innerHTML = '';
         
-        currentQuestion.options.forEach(opt => {
-            const optionDiv = document.createElement('div');
-            optionDiv.className = 'option-item';
+        q.options.forEach(opt => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'option-item';
             
-            const isChecked = userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex].includes(opt.id);
-            if (isChecked) {
-                optionDiv.classList.add('selected');
-            }
+            const isSelected = userSelections[currentIdx] && userSelections[currentIdx].includes(opt.id);
+            if (isSelected) wrapper.classList.add('selected');
 
-            const input = document.createElement('input');
-            input.type = currentQuestion.type === 'single' ? 'radio' : 'checkbox';
-            input.name = 'quiz-option';
-            input.value = opt.id;
-            input.checked = isChecked;
+            const inputControl = document.createElement('input');
+            inputControl.type = q.type === 'single' ? 'radio' : 'checkbox';
+            inputControl.name = 'cyberpunk-option';
+            inputControl.value = opt.id;
+            inputControl.checked = isSelected;
 
-            const textSpan = document.createElement('span');
-            textSpan.textContent = opt.text;
+            const labelText = document.createElement('span');
+            labelText.textContent = `${opt.id}) ${opt.text}`;
 
-            optionDiv.appendChild(input);
-            optionDiv.appendChild(textSpan);
+            wrapper.appendChild(inputControl);
+            wrapper.appendChild(labelText);
 
-            // Клик на целата површина на картичката на опцијата
-            optionDiv.addEventListener('click', (e) => {
-                if (e.target !== input) {
-                    input.checked = !input.checked;
+            wrapper.addEventListener('click', (e) => {
+                if (e.target !== inputControl) {
+                    inputControl.checked = !inputControl.checked;
                 }
-                handleSelection(input, optionDiv, currentQuestion.type);
+                processUserSelection(inputControl, wrapper, q.type);
             });
 
-            optionsList.appendChild(optionDiv);
+            optionsList.appendChild(wrapper);
         });
 
-        // Ажурирање на прогрес бар
-        const progressPercent = ((currentQuestionIndex) / examQuestions.length) * 100;
-        progressBar.style.width = `${progressPercent}%`;
-
-        // Корекција на функционалноста на копчињата
-        prevBtn.disabled = currentQuestionIndex === 0;
-        
-        if (currentQuestionIndex === examQuestions.length - 1) {
-            nextBtn.textContent = "Прегледај тест";
-        } else {
-            nextBtn.textContent = "Следно";
-        }
+        progressBar.style.width = `${((currentIdx) / quizQuestions.length) * 100}%`;
+        prevBtn.disabled = currentIdx === 0;
+        nextBtn.textContent = currentIdx === quizQuestions.length - 1 ? "Премини на преглед" : "Следно";
     }
 
-    // МЕНАЏИРАЊЕ НА СЕЛЕКЦИЈАТА НА ОДГОВОРИ
-    function handleSelection(input, optionDiv, type) {
-        if (!userAnswers[currentQuestionIndex]) {
-            userAnswers[currentQuestionIndex] = [];
-        }
+    function processUserSelection(input, parentNode, type) {
+        if (!userSelections[currentIdx]) userSelections[currentIdx] = [];
 
         if (type === 'single') {
-            const allOptions = optionsList.querySelectorAll('.option-item');
-            allOptions.forEach(el => el.classList.remove('selected'));
-            
-            optionDiv.classList.add('selected');
-            userAnswers[currentQuestionIndex] = [input.value];
+            optionsList.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+            parentNode.classList.add('selected');
+            userSelections[currentIdx] = [input.value];
         } else {
             if (input.checked) {
-                optionDiv.classList.add('selected');
-                if (!userAnswers[currentQuestionIndex].includes(input.value)) {
-                    userAnswers[currentQuestionIndex].push(input.value);
+                parentNode.classList.add('selected');
+                if (!userSelections[currentIdx].includes(input.value)) {
+                    userSelections[currentIdx].push(input.value);
                 }
             } else {
-                optionDiv.classList.remove('selected');
-                userAnswers[currentQuestionIndex] = userAnswers[currentQuestionIndex].filter(id => id !== input.value);
+                parentNode.classList.remove('selected');
+                userSelections[currentIdx] = userSelections[currentIdx].filter(val => val !== input.value);
             }
         }
     }
 
-    // НАВИГАЦИЈА СЛЕДНО И ПРЕТХОДНО
     nextBtn.addEventListener('click', () => {
-        if (!userAnswers[currentQuestionIndex] || userAnswers[currentQuestionIndex].length === 0) {
-            alert("Ве молиме селектирајте одговор пред да преминете на следното прашање.");
+        if (!userSelections[currentIdx] || userSelections[currentIdx].length === 0) {
+            alert("Потребно е да дефинирате барем едно инфраструктурно решение пред да продолжите на следното ниво.");
             return;
         }
 
-        if (currentQuestionIndex < examQuestions.length - 1) {
-            currentQuestionIndex++;
-            renderQuestion();
+        if (currentIdx < quizQuestions.length - 1) {
+            currentIdx++;
+            displayQuestion();
         } else {
-            showReviewScreen();
+            renderReviewDashboard();
         }
     });
 
     prevBtn.addEventListener('click', () => {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            renderQuestion();
+        if (currentIdx > 0) {
+            currentIdx--;
+            displayQuestion();
         }
     });
 
-    // ЕКРАН ЗА ПРЕГЛЕД ПРЕД КРАЈНО ПРЕДАВАЊЕ
-    function showReviewScreen() {
+    function renderReviewDashboard() {
         quizScreen.classList.add('hidden');
         reviewScreen.classList.remove('hidden');
-        
         reviewList.innerHTML = '';
-        
-        examQuestions.forEach((q, index) => {
-            const reviewItem = document.createElement('div');
-            reviewItem.className = 'review-item';
-            
-            const hasAnswer = userAnswers[index] && userAnswers[index].length > 0;
-            if (!hasAnswer) {
-                reviewItem.classList.add('unanswered');
-            }
 
-            const infoDiv = document.createElement('div');
-            infoDiv.innerHTML = `<strong>Прашање ${index + 1}:</strong> ${q.question.substring(0, 60)}...`;
-            
-            const statusSpan = document.createElement('span');
-            statusSpan.className = hasAnswer ? 'ans-indicator ans-correct-text' : 'ans-indicator ans-wrong-text';
-            statusSpan.textContent = hasAnswer ? 'Одговорено' : 'Неодговорено';
+        quizQuestions.forEach((q, i) => {
+            const row = document.createElement('div');
+            row.className = 'review-item';
 
-            reviewItem.appendChild(infoDiv);
-            reviewItem.appendChild(statusSpan);
+            const summary = document.createElement('span');
+            summary.innerHTML = `<strong>Прашање ${i + 1}:</strong> ${q.question.substring(0, 75)}...`;
+
+            const badge = document.createElement('span');
+            const statusOk = userSelections[i] && userSelections[i].length > 0;
+            badge.className = `status-badge ${statusOk ? 'status-filled' : 'status-empty'}`;
+            badge.textContent = statusOk ? 'Решено' : 'Празно';
+
+            row.appendChild(summary);
+            row.appendChild(badge);
             
-            reviewItem.style.cursor = "pointer";
-            reviewItem.addEventListener('click', () => {
-                currentQuestionIndex = index;
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', () => {
+                currentIdx = i;
                 reviewScreen.classList.add('hidden');
                 quizScreen.classList.remove('hidden');
-                renderQuestion();
+                displayQuestion();
             });
 
-            reviewList.appendChild(reviewItem);
+            reviewList.appendChild(row);
         });
     }
 
-    backToQuizBtn.addEventListener('click', () => {
+    backBtn.addEventListener('click', () => {
         reviewScreen.classList.add('hidden');
         quizScreen.classList.remove('hidden');
-        renderQuestion();
+        displayQuestion();
     });
 
-    submitExamBtn.addEventListener('click', () => {
-        let unansweredCount = 0;
-        examQuestions.forEach((_, index) => {
-            if (!userAnswers[index] || userAnswers[index].length === 0) unansweredCount++;
-        });
-
-        if (unansweredCount > 0) {
-            if (!confirm(`Имате уште ${unansweredCount} неодговорени прашања. Дали навистина сакате да го завршите испитот?`)) {
-                return;
-            }
-        }
-        
-        clearInterval(timerInterval);
-        evaluateExam();
-    });
-
-    // ЕВАЛУАЦИЈА И ПРЕСМЕТКА НА РЕЗУЛТАТИТЕ
-    function evaluateExam() {
-        let correctCount = 0;
-        let wrongCount = 0;
-
+    backBtn.addEventListener('click', () => {
         reviewScreen.classList.add('hidden');
-        quizScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        displayQuestion();
+    });
+
+    submitBtn.addEventListener('click', () => {
+        reviewScreen.classList.add('hidden');
         resultScreen.classList.remove('hidden');
+        generateFinalMetrics();
+    });
 
-        detailedResultsLog.innerHTML = '';
+    function generateFinalMetrics() {
+        let totalScore = 0;
+        detailedLog.innerHTML = '';
 
-        examQuestions.forEach((q, index) => {
-            const userSelection = userAnswers[index] || [];
-            
-            // Споредба на точните одговори
-            const isCorrect = userSelection.length === q.correct.length && 
-                              userSelection.every(val => q.correct.includes(val));
+        quizQuestions.forEach((q, i) => {
+            const currentAnswers = userSelections[i] || [];
+            const isMatch = currentAnswers.length === q.correct.length && currentAnswers.every(item => q.correct.includes(item));
 
-            if (isCorrect) {
-                correctCount++;
-            } else {
-                wrongCount++;
-            }
+            if (isMatch) totalScore += 1;
 
-            // Извештај за секое прашање поединечно во логот
-            const logBlock = document.createElement('div');
-            logBlock.className = 'result-q-block';
+            const logCard = document.createElement('div');
+            logCard.className = 'log-item';
 
-            const statusBadge = document.createElement('span');
-            statusBadge.className = isCorrect ? 'result-q-status status-correct' : 'result-q-status status-incorrect';
-            statusBadge.textContent = isCorrect ? 'Точно' : 'Погрешно';
-            
-            const qTitle = document.createElement('h4');
-            qTitle.style.marginBottom = '15px';
-            qTitle.textContent = `${index + 1}. ${q.question}`;
+            const stateIndicator = document.createElement('span');
+            stateIndicator.className = `log-status ${isMatch ? 'log-correct' : 'log-incorrect'}`;
+            stateIndicator.textContent = isMatch ? 'Точно решение (+1 поен)' : 'Несовпаѓање на состојба (0 поени)';
 
-            const optContainer = document.createElement('div');
-            optContainer.style.display = 'flex';
-            optContainer.style.flexDirection = 'column';
-            optContainer.style.gap = '8px';
+            const questionTitle = document.createElement('h4');
+            questionTitle.style.color = '#ffffff';
+            questionTitle.style.fontSize = '1.1rem';
+            questionTitle.textContent = `${i + 1}. ${q.question}`;
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'log-options';
 
             q.options.forEach(opt => {
-                const optRow = document.createElement('div');
-                optRow.style.padding = '10px 15px';
-                optRow.style.borderRadius = '6px';
-                optRow.style.fontSize = '0.95rem';
-                optRow.style.display = 'flex';
-                optRow.style.alignItems = 'center';
+                const row = document.createElement('div');
+                row.className = 'log-opt-row';
 
-                const isUserPicked = userSelection.includes(opt.id);
-                const isSystemCorrect = q.correct.includes(opt.id);
+                const chosenByUser = currentAnswers.includes(opt.id);
+                const systemCorrect = q.correct.includes(opt.id);
 
-                if (isSystemCorrect) {
-                    optRow.style.background = 'rgba(16, 185, 129, 0.15)';
-                    optRow.style.border = '1px solid var(--success)';
-                } else if (isUserPicked && !isSystemCorrect) {
-                    optRow.style.background = 'rgba(239, 68, 68, 0.15)';
-                    optRow.style.border = '1px solid var(--error)';
+                if (systemCorrect) {
+                    row.classList.add('log-opt-correct');
+                } else if (chosenByUser && !systemCorrect) {
+                    logCard.classList.add('log-opt-wrong');
                 } else {
-                    optRow.style.background = '#242f3d';
-                    optRow.style.border = '1px solid #374151';
+                    row.classList.add('log-opt-normal');
                 }
 
-                let markerText = "";
-                if (isUserPicked && isSystemCorrect) markerText = " (Ваш точен одговор)";
-                else if (isUserPicked && !isSystemCorrect) markerText = " (Ваш погрешен избор)";
-                else if (!isUserPicked && isSystemCorrect) markerText = " (Пропуштен точен одговор)";
+                let marker = '';
+                if (chosenByUser && systemCorrect) marker = ' [✓ ВАШ ТОЧЕН ИЗБОР]';
+                else if (chosenByUser && !systemCorrect) marker = ' [✗ ВАШ ПОГРЕШЕН ИЗБОР]';
+                else if (!chosenByUser && systemCorrect) marker = ' [ПРОПУШТЕН ТОЧЕН ОДГОВОР]';
 
-                optRow.textContent = `[${opt.id}] ${opt.text}${markerText}`;
-                optContainer.appendChild(optRow);
+                row.textContent = `${opt.id}) ${opt.text}${marker}`;
+                optionsContainer.appendChild(row);
             });
 
-            const explanation = document.createElement('div');
-            explanation.className = 'explanation-box';
-            explanation.innerHTML = `<strong>Објаснување:</strong> ${q.explanation}`;
+            const blockExplanation = document.createElement('div');
+            blockExplanation.className = 'explanation-box';
+            blockExplanation.innerHTML = `<strong>Инфраструктурна евалуација:</strong> ${q.explanation}`;
 
-            logBlock.appendChild(statusBadge);
-            logBlock.appendChild(qTitle);
-            logBlock.appendChild(optContainer);
-            logBlock.appendChild(explanation);
+            logCard.appendChild(stateIndicator);
+            logCard.appendChild(questionTitle);
+            logCard.appendChild(optionsContainer);
+            logCard.appendChild(blockExplanation);
 
-            detailedResultsLog.appendChild(logBlock);
+            detailedLog.appendChild(logCard);
         });
 
-        // ПРЕСМЕТУВАЊЕ НА ПРОЦЕНТИ И ФИНИШИРАЊЕ НА ОЦЕНКИТЕ (СКАЛА ЗА ОЦЕНУВАЊЕ)
-        const totalQuestions = examQuestions.length;
-        const finalPercentage = Math.round((correctCount / totalQuestions) * 100);
-
-        document.getElementById('res-percent').textContent = `${finalPercentage}%`;
-        document.getElementById('res-score').textContent = `${correctCount} / ${totalQuestions}`;
-        document.getElementById('res-correct').textContent = correctCount;
-        document.getElementById('res-wrong').textContent = wrongCount;
-
-        // Имплементација на скалата за оценување од Дел 3
-        let grade = "Оценка Ф (Неуспешно)";
-        let statusMessage = "Недоволно разбирање на материјалот. Потребно е повторно полагање на курсот или опширен преглед на водичот за учење.";
-        const gradeBoxEl = document.getElementById('grade-box');
+        // Калкулација на краен резултат
+        const finalPercentage = (totalScore / quizQuestions.length) * 100;
+        let gradeText = '';
+        let statusMessage = '';
 
         if (finalPercentage >= 90) {
-            grade = "Оценка А (Одлично)";
+            gradeText = "Оценка А (Одлично)";
             statusMessage = "Извонредно разбирање на концептот на Pod-ови во Kubernetes.";
-            gradeBoxEl.style.color = '#3b82f6';
         } else if (finalPercentage >= 80) {
-            grade = "Оценка Б (Добро)";
+            gradeText = "Оценка Б (Добро)";
             statusMessage = "Цврсто разбирање на клучните концепти за Pod-ови, погодно за практична примена.";
-            gradeBoxEl.style.color = 'var(--success)';
         } else if (finalPercentage >= 70) {
-            grade = "Оценка Ц (Задоволително)";
+            gradeText = "Оценка Ц (Задоволително)";
             statusMessage = "Адекватно знаење, но бара преглед на специфични аспекти на Pod-овите.";
-            gradeBoxEl.style.color = '#eab308';
         } else if (finalPercentage >= 60) {
-            grade = "Оценка Д (Потребно е подобрување)";
+            gradeText = "Оценка Д (Потребно е подобрување)";
             statusMessage = "Маргинално разбирање; се препорачува значителен преглед на материјалот за Pod-ови.";
-            gradeBoxEl.style.color = '#f97316';
         } else {
-            gradeBoxEl.style.color = 'var(--error)';
+            gradeText = "Оценка F (Недоволен)";
+            statusMessage = "Не е постигнат минималниот испитен праг (70%). Се препорачува повторна конфигурација на знаењето.";
         }
 
-        gradeBoxEl.textContent = grade;
+        document.getElementById('grade-box').textContent = gradeText;
         document.getElementById('result-status-text').textContent = statusMessage;
-        
+        document.getElementById('res-points').textContent = `${totalScore} / ${quizQuestions.length}`;
+        document.getElementById('res-percent').textContent = `${finalPercentage}%`;
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // РЕСТАРТИРАЊЕ НА ТЕСТОТ ОДПОЧЕТОК
     restartBtn.addEventListener('click', () => {
         resultScreen.classList.add('hidden');
         introScreen.classList.remove('hidden');
