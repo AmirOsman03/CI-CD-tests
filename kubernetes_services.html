@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Испитен тест: Kubernetes (Services & Ingresses)</title>
+    <style>
+        /* --- ЦСС ДИЗАЈН СИСТЕМ (CYBERPUNK / NEON DARK THEME) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #050811 0%, #0a1128 100%);
+            --card-bg: #0f1934;
+            --primary: #00f5d4;
+            --primary-hover: #00bbf9;
+            --success: #00f5d4;
+            --success-border: #00bbf9;
+            --error: #f72585;
+            --text-main: #b5c2ec;
+            --text-muted: #707e94;
+            --border-color: #1e295d;
+            --option-bg: #132247;
+            --option-hover: #1b3266;
+            --accent: #fee440;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        /* --- КАРТИЧКИ И ЛЕЈАУТ --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 245, 212, 0.1);
+            border: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Високо-технолошка три-колорна линеарна горна линија */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--error), var(--accent));
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- ПОЧЕТЕН ЕКРАН --- */
+        .intro-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .intro-header h1 {
+            font-size: 2.2rem;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 245, 212, 0.4);
+        }
+
+        .intro-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .meta-item {
+            background: #070d1e;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .meta-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 8px rgba(254, 228, 64, 0.3);
+        }
+
+        /* --- ПРОГРЕС И ИНФО БАР --- */
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        .progress-container {
+            height: 6px;
+            background: #070d1e;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            background: #070d1e;
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .badge-weight {
+            background: #1e1b4b;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- ПРАШАЊА И ОПЦИИ --- */
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin: 35px 0 25px 0;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+
+        .option-item {
+            background: var(--option-bg);
+            padding: 18px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            user-select: none;
+        }
+
+        .option-item:hover {
+            background: var(--option-hover);
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.15);
+        }
+
+        .option-item input {
+            margin-right: 18px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .option-item.selected {
+            background: rgba(0, 245, 212, 0.08);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.1);
+        }
+
+        /* --- КОПЧИЊА --- */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .btn {
+            background: #070d1e;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--option-hover);
+            border-color: #94a3b8;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary);
+            color: #050811;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* --- ЕКРАН ЗА ПРЕГЛЕД (REVIEW) --- */
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+
+        .review-item {
+            background: #070d1e;
+            padding: 16px 22px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .review-item:hover {
+            border-color: var(--primary);
+            background: rgba(0, 245, 212, 0.03);
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-filled { background: rgba(0, 245, 212, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .status-empty { background: rgba(247, 37, 133, 0.15); color: var(--error); border: 1px solid var(--error); }
+
+        /* --- РЕЗУЛТАТИ И ИЗВЕШТАЈ --- */
+        .grade-box {
+            text-align: center;
+            font-size: 2.4rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 25px 0;
+            text-shadow: 0 0 15px rgba(254, 228, 64, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .result-mini-card {
+            background: #070d1e;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .results-review-section {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+        }
+
+        .log-item {
+            background: #070d1e;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .log-status {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+        .log-correct { background: rgba(0, 245, 212, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .log-incorrect { background: rgba(247, 37, 133, 0.15); color: var(--error); border: 1px solid var(--error); }
+
+        .log-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .log-opt-row {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            border: 1px solid transparent;
+        }
+        .log-opt-correct { background: rgba(0, 245, 212, 0.08); border-color: var(--primary); color: #ffffff; }
+        .log-opt-wrong { background: rgba(247, 37, 133, 0.08); border-color: var(--error); }
+        .log-opt-normal { background: var(--card-bg); border-color: var(--border-color); }
+
+        .explanation-box {
+            background: rgba(254, 228, 64, 0.04);
+            border-left: 3px solid var(--accent);
+            padding: 14px 18px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border-radius: 0 6px 6px 0;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="intro-screen" class="card">
+        <div class="intro-header">
+            <h1>Испитен тест: Kubernetes</h1>
+            <h2>Services &amp; Ingresses</h2>
+            <p>Овој професионален тест е дизајниран да ги евалуира вашите вештини за внатрешно и надворешно мрежно рутирање, сервиси, револуционерниот пристап на Ingress контролерите и стабилната дистрибуција на сообраќај.</p>
+        </div>
+        
+        <div class="meta-grid">
+            <div class="meta-item">
+                <div class="meta-label">Прашања</div>
+                <div class="meta-value">10</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Вкупно поени</div>
+                <div class="meta-value">100</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Преоден праг</div>
+                <div class="meta-value">70%</div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="start-btn" style="width: 100%; margin-top: 10px;">Стартувај го испитот</button>
+    </div>
+
+    <div id="quiz-screen" class="card hidden">
+        <div class="quiz-header">
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div class="info-bar">
+                <span id="question-counter">Прашање 1 од 10</span>
+                <span id="question-weight" class="badge-weight">ЛЕСНО</span>
+            </div>
+        </div>
+
+        <div id="question-container">
+            <p id="question-text" class="question-text">Текст на прашањето</p>
+            <div id="options-list" class="options-list"></div>
+        </div>
+
+        <div class="btn-group">
+            <button id="prev-btn" class="btn">Претходно</button>
+            <button id="next-btn" class="btn btn-primary">Следно</button>
+        </div>
+    </div>
+
+    <div id="review-screen" class="card hidden">
+        <div class="intro-header">
+            <h1>Преглед на одговорите</h1>
+            <p>Проверете ги финално сите одбрани ставки пред дефинитивно да го предадете тестот за процесирање.</p>
+        </div>
+
+        <div id="review-list" class="review-list"></div>
+
+        <div class="btn-group">
+            <button id="back-btn" class="btn">Назад кон прашањата</button>
+            <button id="submit-btn" class="btn btn-primary">Предај и оцени</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="card hidden">
+        <div class="intro-header">
+            <h1>Испитен Извештај</h1>
+            <p id="result-text-status">Резултат статус...</p>
+        </div>
+
+        <div id="grade-box" class="grade-box">Оценка</div>
+
+        <div class="result-grid">
+            <div class="result-mini-card">
+                <div class="meta-label">Вкупно освоени поени</div>
+                <div id="res-points" class="meta-value">0 / 100</div>
+            </div>
+            <div class="result-mini-card">
+                <div class="meta-label">Точност во проценти</div>
+                <div id="res-percent" class="meta-value">0%</div>
+            </div>
+        </div>
+
+        <button id="restart-btn" class="btn" style="width: 100%; margin-bottom: 30px;">Обиди се повторно</button>
+
+        <div class="results-review-section">
+            <h3 style="margin-bottom: 25px; color: #ffffff; letter-spacing: 0.5px;">Лог за детална ревизија на знаењето:</h3>
+            <div id="detailed-log"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // КОМПЛЕТНА БАЗА НА ПОДАТОЦИ ЗА SERVICES & INGRESSES
+    const dbQuestions = [
+        {
+            id: 1,
+            type: "single",
+            weight: "Лесно",
+            question: "Зошто се потребни Services во Kubernetes, наместо да се потпираме само на IP адресите на Pod-овите?",
+            options: [
+                { id: "A", text: "Затоа што Pod-овите имаат статични IP адреси кои никогаш не се менуваат." },
+                { id: "B", text: "Затоа што Pod-овите се непроменливи (ephemeral), па нивното уништување и рекреирање резултира со нови IP адреси." },
+                { id: "C", text: "Затоа што Services ги заменуваат Deployments во управувањето со Pod-ови." },
+                { id: "D", text: "Затоа што Services ги чуваат податоците на Pod-овите на перзистентен начин." }
+            ],
+            correct: ["B"],
+            explanation: "Pod-овите во Kubernetes се непроменливи и при нивно рекреирање добиваат нови IP адреси. Services обезбедуваат стабилна IP адреса, DNS и порти за пристап до нив."
+        },
+        {
+            id: 2,
+            type: "single",
+            weight: "Лесно",
+            question: "Кој тип на Service се користи за да се обезбеди пристап до Pod-овите само од внатрешноста на кластерот?",
+            options: [
+                { id: "A", text: "NodePort" },
+                { id: "B", text: "Load Balancer" },
+                { id: "C", text: "ClusterIP" },
+                { id: "D", text: "Ingress" }
+            ],
+            correct: ["C"],
+            explanation: "Типот ClusterIP е стандарден (default) тип кој доделува внатрешна IP адреса на кластерот, правејќи го Сервисот достапен само во самиот кластер."
+        },
+        {
+            id: 3,
+            type: "single",
+            weight: "Лесно",
+            question: "Како Kubernetes Service знае кон кои конкретни Pod-ови треба да го рутира сообраќајот?",
+            options: [
+                { id: "A", text: "Преку хардкодирани IP адреси во spec.endpoints." },
+                { id: "B", text: "Преку селектори на етикети (spec.selector) кои се совпаѓаат со лабелите дефинирани на самите Pod-ови." },
+                { id: "C", text: "Преку името на контејнерот во апликацијата." },
+                { id: "D", text: "Преку автоматско скенирање на сите отворени порти во Namespace-от." }
+            ],
+            correct: ["B"],
+            explanation: "Логичката врска меѓу Сервисот и соодветните Pod-ови се дефинира преку селектори (Label Selectors). Сервисот континуирано го насочува сообраќајот кон сите Pod-ови кои ги имаат тие лабели."
+        },
+        {
+            id: 4,
+            type: "multiple",
+            weight: "Средно",
+            question: "Кои од следниве порти се дефинираат во конфигурацијата на еден Kubernetes Service објект?",
+            options: [
+                { id: "A", text: "port - портата на која самиот Сервис ги слуша внатрешните барања." },
+                { id: "B", text: "hostPort - портата што го изложува контејнерот директно на IP адресата на јазолот." },
+                { id: "C", text: "targetPort - портата на која апликацијата во внатрешноста на контејнерот реално работи." },
+                { id: "D", text: "nodePort - специфична порта на секој јазол (опсег 30000-32767) преку која сообраќајот се прима однадвор." }
+            ],
+            correct: ["A", "C", "D"],
+            explanation: "Во Service објект типично се конфигурираат: 'port' (изложеноста на самиот сервис), 'targetPort' (портата на контејнерот) и изборно 'nodePort' за надворешен пристап преку IP на јазолот. 'hostPort' е својство на самиот Pod, а не на Service објектот."
+        },
+        {
+            id: 5,
+            type: "single",
+            weight: "Средно",
+            question: "Што е тоа „Headless Service“ во контекст на Kubernetes оркестрацијата?",
+            options: [
+                { id: "A", text: "Сервис кој нема дефинирано порти во својот манифест." },
+                { id: "B", text: "Сервис каде експлицитно е поставено spec.clusterIP: None, овозможувајќи директно пребарување на IP адресите на Pod-овите преку DNS соодветно за StatefulSets." },
+                { id: "C", text: "Сервис кој не користи селектори за лабели." },
+                { id: "D", text: "Сервис кој се извршува исклучиво на Master контролните јазли." }
+            ],
+            correct: ["B"],
+            explanation: "Со поставување на clusterIP на 'None', се креира Headless сервис. Наместо да прави load-balancing преку една IP, DNS серверот на Kubernetes враќа А-рекорди со реалните IP адреси на сите поврзани Pod-ови."
+        },
+        {
+            id: 6,
+            type: "multiple",
+            weight: "Средно",
+            question: "Кои од следниве предности ги носи користењето на Ingress објект во споредба со креирање на повеќе NodePort или LoadBalancer сервиси?",
+            options: [
+                { id: "A", text: "Овозможува консолидација на рутирачките правила во еден единствен ресурс." },
+                { id: "B", text: "Поддржува напредно рутирање засновано на патеки (Path-based) и домени (Host-based URL routing)." },
+                { id: "C", text: "Автоматски ја прекинува работата на сите неактивни Pod-ови во кластерот заради заштеда." },
+                { id: "D", text: "Овозможува централизирана конфигурација на SSL/TLS сертификати за сите изложени веб апликации." }
+            ],
+            correct: ["A", "B", "D"],
+            explanation: "Ingress овозможува паметно рутирање на сообраќај на апликативно ниво (Layer 7), управување со SSL термилација и заштеда на cloud ресурси преку користење на една влезна точка наместо посебни Load Balancers за секој сервис."
+        },
+        {
+            id: 7,
+            type: "single",
+            weight: "Средно",
+            question: "Што претставува „EndpointSlice“ објектот во поновите верзии на Kubernetes?",
+            options: [
+                { id: "A", text: "Нов тип на криптографски безбедносен клуч за Ingress рутите." },
+                { id: "B", text: "Скалабилен механизам кој ги групира мрежните крајни точки (endpoints) со цел да се намали мрежниот товар врз контролниот слој кај масивни кластери." },
+                { id: "C", text: "Конфигурациски фајл за поставување лимити на меморијата." },
+                { id: "D", text: "Објект што ги дефинира хардверските порти на физичкиот рутер." }
+            ],
+            correct: ["B"],
+            explanation: "Ендпоинт Слијс (EndpointSlices) беа воведени за да го решат проблемот со перформансите кај традиционалните Endpoints кога еден сервис содржи илјадници Pod-ови. Тие ги делат точките во помали групи, драматично намалувајќи го сообраќајот на etcd и контролната рамнина."
+        },
+        {
+            id: 8,
+            type: "single",
+            weight: "Тешко",
+            question: "Доколку креирате Ingress манифест во кластерот, а немате претходно инсталирано Ingress Controller (како NGINX, Traefik, HAProxy), што ќе се случи со сообраќајот?",
+            options: [
+                { id: "A", text: "API серверот автоматски ќе преземе улога и ќе го изврши рутирањето на сообраќајот." },
+                { id: "B", text: "Самиот Ingress манифест ќе остане само пасивен запис во etcd базата и рутирањето нема да функционира бидејќи нема софтвер што активно ги следи и имплементира тие правила." },
+                { id: "C", text: "Оперативниот систем на јазлите ќе генерира грешка и ќе ги рестартира сите мрежни картички." },
+                { id: "D", text: "Сообраќајот ќе се рутира преку стандардниот ClusterIP алгоритам со задоцнување." }
+            ],
+            correct: ["B"],
+            explanation: "Ingress манифестот е само описна дефиниција на правилата. Без инсталиран Ingress Controller (конкретен софтвер-демон кој го чита тој опис и го конфигурира вистинскиот прокси сервер), правилата нема да имаат никаков ефект во реалноста."
+        },
+        {
+            id: 9,
+            type: "multiple",
+            weight: "Тешко",
+            question: "Кои од следниве режими за работа (modes) на kube-proxy се користат во современите продукциски Kubernetes средини за менаџирање на iptables/IPVS?",
+            options: [
+                { id: "A", text: "IPVS режим (IP Virtual Server) - користи хаш табели во кернелот и нуди супериорни перформанси за големи кластери O(1)." },
+                { id: "B", text: "Userspace режим - постар режим каде сообраќајот постојано преминува помеѓу kernel и userspace просторот, што е неефикасно." },
+                { id: "C", text: "iptables режим - стандарден режим кој се потпира на системските фајрвол правила и ги обработува секвенцијално O(n)." },
+                { id: "D", text: "DirectConnect режим - режим кој овозможува хардверска замена на процесорот." }
+            ],
+            correct: ["A", "B", "C"],
+            explanation: "Kube-proxy историски поддржува три главни режими: Userspace (застарен и бавен), iptables (најчест, секвенцијален) и IPVS (најнапреден, користи хаш табели во кернелот со константна комплексност за огромни средини)."
+        },
+        {
+            id: 10,
+            type: "single",
+            weight: "Тешко",
+            question: "При користење на K3D локална развојна алатка, кој чекор е клучен за да овозможите вашиот локален прелистувач надвор од кластерот да пристапи до Traefik Ingress ресурсите?",
+            options: [
+                { id: "A", text: "Извршување на командата kubectl apply -f traefik.yaml за целосно реинсталирање на рутерот." },
+                { id: "B", text: "Експлицитно изложување на портата 80 на Load Balancer јазолот при самото иницијално креирање на кластерот преку аргументот -p \"80:80@loadbalancer\"." },
+                { id: "C", text: "Поставување на параметарот spec.ingressClassName: traefik во сите Service ресурси." },
+                { id: "D", text: "Оневозможување на локалниот мрежен заштитен ѕид (firewall) на оперативниот систем." }
+            ],
+            correct: ["B"],
+            explanation: "Бидејќи K3D го извршува кластерот внатре во Docker контејнери, за сообраќајот однадвор да стигне до Traefik Ingress контролерот, мораме да ја мапираме портата на хостот со Load Balancer контејнерот при самата иницијализација на кластерот."
+        }
+    ];
+
+    let currentQuestions = [];
+    let activeIndex = 0;
+    let selectedAnswers = {}; 
+
+    // DOM ЕЛЕМЕНТИ
+    const introScreen = document.getElementById('intro-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const resultScreen = document.getElementById('result-screen');
+
+    const startBtn = document.getElementById('start-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const backBtn = document.getElementById('back-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const restartBtn = document.getElementById('restart-btn');
+
+    const progressBar = document.getElementById('progress-bar');
+    const questionCounter = document.getElementById('question-counter');
+    const questionWeight = document.getElementById('question-weight');
+    const questionText = document.getElementById('question-text');
+    const optionsList = document.getElementById('options-list');
+    const reviewList = document.getElementById('review-list');
+    const detailedLog = document.getElementById('detailed-log');
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function initQuiz() {
+        currentQuestions = JSON.parse(JSON.stringify(dbQuestions));
+        shuffle(currentQuestions);
+        currentQuestions.forEach(q => shuffle(q.options));
+        activeIndex = 0;
+        selectedAnswers = {};
+    }
+
+    startBtn.addEventListener('click', () => {
+        initQuiz();
+        introScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        renderQuestion();
+    });
+
+    function renderQuestion() {
+        const q = currentQuestions[activeIndex];
+        
+        questionCounter.textContent = `Прашање ${activeIndex + 1} од ${currentQuestions.length}`;
+        questionWeight.textContent = q.weight;
+        
+        if (q.weight === 'Лесно') {
+            questionWeight.style.borderColor = '#00f5d4';
+            questionWeight.style.color = '#00f5d4';
+        } else if (q.weight === 'Средно') {
+            questionWeight.style.borderColor = '#fee440';
+            questionWeight.style.color = '#fee440';
+        } else {
+            questionWeight.style.borderColor = '#f72585';
+            questionWeight.style.color = '#f72585';
+        }
+
+        questionText.textContent = `${q.question} (${q.type === 'single' ? 'еден точен одговор' : 'избери повеќе точни одговори'})`;
+        
+        optionsList.innerHTML = '';
+        
+        q.options.forEach(opt => {
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            
+            const isChecked = selectedAnswers[activeIndex] && selectedAnswers[activeIndex].includes(opt.id);
+            if (isChecked) div.classList.add('selected');
+
+            const input = document.createElement('input');
+            input.type = q.type === 'single' ? 'radio' : 'checkbox';
+            input.name = 'cyber-opt';
+            input.value = opt.id;
+            input.checked = isChecked;
+
+            const span = document.createElement('span');
+            span.textContent = `${opt.id}) ${opt.text}`;
+
+            div.appendChild(input);
+            div.appendChild(span);
+
+            div.addEventListener('click', (e) => {
+                if (e.target !== input) input.checked = !input.checked;
+                handleSelection(input, div, q.type);
+            });
+
+            optionsList.appendChild(div);
+        });
+
+        progressBar.style.width = `${((activeIndex) / currentQuestions.length) * 100}%`;
+        prevBtn.disabled = activeIndex === 0;
+        nextBtn.textContent = activeIndex === currentQuestions.length - 1 ? "Оди на преглед" : "Следно";
+    }
+
+    function handleSelection(input, div, type) {
+        if (!selectedAnswers[activeIndex]) selectedAnswers[activeIndex] = [];
+
+        if (type === 'single') {
+            optionsList.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedAnswers[activeIndex] = [input.value];
+        } else {
+            if (input.checked) {
+                div.classList.add('selected');
+                if (!selectedAnswers[activeIndex].includes(input.value)) selectedAnswers[activeIndex].push(input.value);
+            } else {
+                div.classList.remove('selected');
+                selectedAnswers[activeIndex] = selectedAnswers[activeIndex].filter(v => v !== input.value);
+            }
+        }
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (!selectedAnswers[activeIndex] || selectedAnswers[activeIndex].length === 0) {
+            alert("Потребно е да одберете барем еден одговор за да преминете на следното прашање.");
+            return;
+        }
+
+        if (activeIndex < currentQuestions.length - 1) {
+            activeIndex++;
+            renderQuestion();
+        } else {
+            showReview();
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (activeIndex > 0) {
+            activeIndex--;
+            renderQuestion();
+        }
+    });
+
+    function showReview() {
+        quizScreen.classList.add('hidden');
+        reviewScreen.classList.remove('hidden');
+        reviewList.innerHTML = '';
+
+        currentQuestions.forEach((q, i) => {
+            const row = document.createElement('div');
+            row.className = 'review-item';
+
+            const txt = document.createElement('span');
+            txt.innerHTML = `<strong>Прашање ${i + 1}:</strong> ${q.question.substring(0, 75)}...`;
+
+            const badge = document.createElement('span');
+            const hasAns = selectedAnswers[i] && selectedAnswers[i].length > 0;
+            badge.className = `status-badge ${hasAns ? 'status-filled' : 'status-empty'}`;
+            badge.textContent = hasAns ? 'Пополнето' : 'Неодговорено';
+
+            row.appendChild(txt);
+            row.appendChild(badge);
+            
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', () => {
+                activeIndex = i;
+                reviewScreen.classList.add('hidden');
+                quizScreen.classList.remove('hidden');
+                renderQuestion();
+            });
+
+            reviewList.appendChild(row);
+        });
+    }
+
+    backBtn.addEventListener('click', () => {
+        reviewScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        renderQuestion();
+    });
+
+    submitBtn.addEventListener('click', () => {
+        reviewScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        calculateResults();
+    });
+
+    function calculateResults() {
+        let score = 0;
+        detailedLog.innerHTML = '';
+
+        currentQuestions.forEach((q, i) => {
+            const userAns = selectedAnswers[i] || [];
+            const isCorrect = userAns.length === q.correct.length && userAns.every(v => q.correct.includes(v));
+
+            if (isCorrect) score += 10;
+
+            const logBlock = document.createElement('div');
+            logBlock.className = 'log-item';
+
+            const badge = document.createElement('span');
+            badge.className = `log-status ${isCorrect ? 'log-correct' : 'log-incorrect'}`;
+            badge.textContent = isCorrect ? 'Точно решение (+10 поени)' : 'Погрешно решение (0 поени)';
+
+            const title = document.createElement('h4');
+            title.style.color = '#ffffff';
+            title.style.fontSize = '1.1rem';
+            title.textContent = `${i + 1}. ${q.question}`;
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'log-options';
+
+            q.options.forEach(opt => {
+                const optRow = document.createElement('div');
+                optRow.className = 'log-opt-row';
+
+                const isUserPicked = userAns.includes(opt.id);
+                const isSysCorrect = q.correct.includes(opt.id);
+
+                if (isSysCorrect) {
+                    optRow.classList.add('log-opt-correct');
+                } else if (isUserPicked && !isSysCorrect) {
+                    logBlock.classList.add('log-opt-wrong');
+                } else {
+                    optRow.classList.add('log-opt-normal');
+                }
+
+                let tag = '';
+                if (isUserPicked && isSysCorrect) tag = ' [✓ ВАШ ТОЧЕН ИЗБОР]';
+                else if (isUserPicked && !isSysCorrect) tag = ' [✗ ВАШ ПОГРЕШЕН ИЗБОР]';
+                else if (!isUserPicked && isSysCorrect) tag = ' [ПРОПУШТЕН ТОЧЕН ОДГОВОР]';
+
+                optRow.textContent = `${opt.id}) ${opt.text}${tag}`;
+                optionsDiv.appendChild(optRow);
+            });
+
+            const exp = document.createElement('div');
+            exp.className = 'explanation-box';
+            exp.innerHTML = `<strong>Архитектонско објаснување:</strong> ${q.explanation}`;
+
+            logBlock.appendChild(badge);
+            logBlock.appendChild(title);
+            logBlock.appendChild(optionsDiv);
+            logBlock.appendChild(exp);
+
+            detailedLog.appendChild(logBlock);
+        });
+
+        // Скала за оценување дефинирана во оригиналниот документ
+        let gradeText = '';
+        let descText = '';
+        if (score >= 90) { gradeText = 'Одличен (A/10)'; descText = 'Честитки! Поставивте максимално ниво на знаење за Services и Ingress.'; }
+        else if (score >= 80) { gradeText = 'Многу добар (B/9)'; descText = 'Одличен резултат со мали пропусти. Имате цврсто разбирање.'; }
+        else if (score >= 70) { gradeText = 'Добар (C/8)'; descText = 'Добро менаџирање со мрежните концепти, но потребна е мала ревизија.'; }
+        else if (score >= 60) { gradeText = 'Задоволителен (D/7)'; descText = 'Имате основни познавања, но внимавајте на Edge-случаевите и тешките прашања.'; }
+        else if (score >= 50) { gradeText = 'Доволен (E/6)'; descText = 'Ги знаете основните термини, но за сигурност во продукција потребно е повеќе вежбање.'; }
+        else { gradeText = 'Недоволен (F/5)'; descText = 'Не го поминавте прагот. Ве молиме прегледајте ја теоријата на EndpointSlices и Ingress Controller конфигурациите.'; }
+
+        document.getElementById('grade-box').textContent = gradeText;
+        document.getElementById('result-text-status').textContent = descText;
+        document.getElementById('res-points').textContent = `${score} / 100`;
+        document.getElementById('res-percent').textContent = `${score}%`;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    restartBtn.addEventListener('click', () => {
+        resultScreen.classList.add('hidden');
+        introScreen.classList.remove('hidden');
+    });
+</script>
+
+</body>
+</html>
