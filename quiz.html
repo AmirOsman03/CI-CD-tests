@@ -504,6 +504,98 @@
         @media (prefers-color-scheme: dark) {
             .grade-badge { background-color: rgba(255, 255, 255, 0.1); }
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+                align-items: center; 
+            }
+
+            .card {
+                padding: 32px 24px;
+                gap: 20px;
+                border-radius: 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .icon-container {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+
+            .category-card {
+                padding: 16px;
+                gap: 14px;
+                border-radius: 14px;
+            }
+
+            .category-badge {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .category-info h3 {
+                font-size: 15px;
+            }
+
+            .category-info p {
+                font-size: 12px;
+                line-height: 1.3;
+            }
+
+            .question-text {
+                font-size: 17px;
+            }
+
+            .option-btn {
+                padding: 14px 18px;
+                font-size: 14.5px;
+            }
+
+            .primary-btn {
+                max-width: 100%;
+                padding: 14px 24px;
+                font-size: 16px;
+            }
+
+            .action-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mistakes-container {
+                max-height: 200px;
+            }
+
+            .mistake-item {
+                padding: 12px;
+            }
+
+            .mistake-q {
+                font-size: 13.5px;
+            }
+
+            .mistake-a {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .card {
+                padding: 24px 16px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
 <body>
