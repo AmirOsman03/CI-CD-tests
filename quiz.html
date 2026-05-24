@@ -180,12 +180,14 @@
         .badge-2 { background: rgba(175, 82, 222, 0.1); color: #af52de; }
         .badge-3 { background: rgba(255, 149, 0, 0.1); color: #ff9500; }
         .badge-4 { background: rgba(52, 199, 89, 0.1); color: #34c759; }
+        .badge-random { background: rgba(255, 45, 85, 0.1); color: #ff2d55; }
 
         @media (prefers-color-scheme: dark) {
             .badge-1 { background: rgba(10, 132, 255, 0.2); color: #0a84ff; }
             .badge-2 { background: rgba(191, 90, 242, 0.2); color: #bf5af2; }
             .badge-3 { background: rgba(255, 159, 10, 0.2); color: #ff9f0a; }
             .badge-4 { background: rgba(48, 209, 88, 0.2); color: #30d158; }
+            .badge-random { background: rgba(255, 55, 95, 0.2); color: #ff375f; }
         }
 
         .category-info h3 {
@@ -648,6 +650,14 @@
                         <p>Persistent Volumes, Claims, Storage Classes, ConfigMaps и Secrets (25 прашања)</p>
                     </div>
                 </div>
+
+                <div class="category-card" onclick="setupRandomQuiz()">
+                    <div class="category-badge badge-random">🎲</div>
+                    <div class="category-info">
+                        <h3>Генератор на случаен квиз</h3>
+                        <p>Микс од сите модули (25 случајно избрани прашања)</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -860,6 +870,27 @@
 
         function setupQuiz(key) {
             currentQuiz = repository[key];
+            currentQuestionIndex = 0;
+            score = 0;
+            incorrectCount = 0;
+            mistakes = [];
+            renderQuestion();
+            switchCard(welcomeCard, quizCard);
+        }
+
+        function setupRandomQuiz() {
+            const allKeys = ['pods', 'deployments', 'services', 'storage'];
+            let combinedQuestions = [];
+            
+            allKeys.forEach(key => {
+                // Shuffle current category and take 6-7 questions
+                const shuffledCategory = [...repository[key]].sort(() => 0.5 - Math.random());
+                combinedQuestions = combinedQuestions.concat(shuffledCategory.slice(0, 7));
+            });
+
+            // Shuffle the final mix and take exactly 25
+            currentQuiz = combinedQuestions.sort(() => 0.5 - Math.random()).slice(0, 25);
+            
             currentQuestionIndex = 0;
             score = 0;
             incorrectCount = 0;
