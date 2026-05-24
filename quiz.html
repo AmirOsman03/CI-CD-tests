@@ -420,6 +420,87 @@
             opacity: 0.7;
         }
 
+        .mistakes-container {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.01);
+            border-radius: 20px;
+            padding: 4px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+            margin: 10px 0;
+            padding-right: 8px; /* For scrollbar spacing */
+        }
+
+        /* Custom scrollbar for mistakes list */
+        .mistakes-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .mistakes-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .mistakes-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .mistakes-container::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .mistake-item {
+            background: white;
+            border: 1px solid var(--border-light);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .mistake-item {
+                background: rgba(255, 255, 255, 0.03);
+                border-color: var(--border-dark);
+            }
+        }
+
+        .mistake-q {
+            font-size: 14.5px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: var(--text-primary-light);
+        }
+
+        .mistake-a-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-green);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .mistake-a {
+            font-size: 14px;
+            color: var(--accent-green);
+            font-weight: 500;
+            line-height: 1.4;
+            display: block;
+            padding-left: 12px;
+            border-left: 2px solid var(--accent-green);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .mistake-q { color: var(--text-primary-dark); }
+        }
+
         @media (prefers-color-scheme: dark) {
             .grade-badge { background-color: rgba(255, 255, 255, 0.1); }
         }
@@ -505,6 +586,12 @@
             </div>
             <div class="grade-badge" id="grade-holder">Оценка: 5</div>
             <p class="subtitle" id="feedback-message" style="max-width: 360px; margin: 0 auto;"></p>
+            
+            <div class="mistakes-container" id="mistakes-list-container">
+                <h3 style="font-size: 16px; margin-bottom: 10px;">Преглед на грешки:</h3>
+                <div id="mistakes-list"></div>
+            </div>
+
             <button class="primary-btn" onclick="backToMenu()">Назад кон мени</button>
         </div>
     </div>
@@ -627,6 +714,7 @@
         let score = 0;
         let incorrectCount = 0;
         let selectedIndices = [];
+        let mistakes = [];
 
         const welcomeCard = document.getElementById('welcome-card');
         const quizCard = document.getElementById('quiz-card');
@@ -648,6 +736,8 @@
         const finalIncorrect = document.getElementById('final-incorrect');
         const gradeHolder = document.getElementById('grade-holder');
         const feedbackMessage = document.getElementById('feedback-message');
+        const mistakesListContainer = document.getElementById('mistakes-list-container');
+        const mistakesList = document.getElementById('mistakes-list');
 
         submitBtn.addEventListener('click', processMultipleChoiceSelection);
         nextBtn.addEventListener('click', () => {
@@ -671,6 +761,7 @@
             currentQuestionIndex = 0;
             score = 0;
             incorrectCount = 0;
+            mistakes = [];
             renderQuestion();
             switchCard(welcomeCard, quizCard);
         }
@@ -733,6 +824,10 @@
                 clickedButton.classList.add('incorrect');
                 allButtons[currentQuestion.correct[0]].classList.add('correct');
                 incorrectCount++;
+                mistakes.push({
+                    question: currentQuestion.question,
+                    correctAnswer: currentQuestion.correct.map(idx => currentQuestion.options[idx]).join(", ")
+                });
                 showExplanation(currentQuestion);
                 actionHolder.style.display = 'flex';
                 submitBtn.style.display = 'none';
@@ -778,6 +873,10 @@
                 setTimeout(advanceQuestion, 1000);
             } else {
                 incorrectCount++;
+                mistakes.push({
+                    question: currentQuestion.question,
+                    correctAnswer: currentQuestion.correct.map(idx => currentQuestion.options[idx]).join(", ")
+                });
                 showExplanation(currentQuestion);
                 submitBtn.style.display = 'none';
                 nextBtn.style.display = 'block';
@@ -807,6 +906,22 @@
             finalCorrect.textContent = score;
             finalTotal.textContent = `од ${totalQuestions}`;
             finalIncorrect.textContent = incorrectCount;
+
+            // Render mistakes
+            mistakesList.innerHTML = '';
+            if (mistakes.length > 0) {
+                mistakesListContainer.style.display = 'flex';
+                mistakes.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'mistake-item';
+                    div.innerHTML = `<span class="mistake-q">${m.question}</span>
+                                     <span class="mistake-a-label">Точен одговор</span>
+                                     <span class="mistake-a">${m.correctAnswer}</span>`;
+                    mistakesList.appendChild(div);
+                });
+            } else {
+                mistakesListContainer.style.display = 'none';
+            }
             
             let grade = 5;
             let message = "";
