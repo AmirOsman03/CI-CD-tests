@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Cluster Quiz Suite</title>
+    <style>
+        :root {
+            --bg-light: #f5f5f7;
+            --card-bg-light: rgba(255, 255, 255, 0.8);
+            --text-primary-light: #1d1d1f;
+            --text-secondary-light: #86868b;
+            --accent-blue: #0071e3;
+            --accent-green: #34c759;
+            --accent-red: #ff3b30;
+            --border-light: rgba(0, 0, 0, 0.08);
+            
+            --bg-dark: #000000;
+            --card-bg-dark: rgba(28, 28, 30, 0.7);
+            --text-primary-dark: #f5f5f7;
+            --text-secondary-dark: #a1a1a6;
+            --border-dark: rgba(255, 255, 255, 0.15);
+
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--bg-dark);
+                color: var(--text-primary-dark);
+            }
+            .card {
+                background: var(--card-bg-dark) !important;
+                border: 1px solid var(--border-dark) !important;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+            }
+            .option-btn {
+                background: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                color: var(--text-primary-dark) !important;
+            }
+            .option-btn:hover:not(:disabled):not(.selected) {
+                background: rgba(255, 255, 255, 0.1) !important;
+            }
+            .category-card {
+                background: rgba(255, 255, 255, 0.03) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            }
+            .category-card:hover {
+                background: rgba(255, 255, 255, 0.07) !important;
+                border-color: var(--accent-blue) !important;
+            }
+        }
+
+        .card {
+            background: var(--card-bg-light);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .card.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .welcome-screen {
+            text-align: center;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .icon-container {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #0071e3, #42a5f5);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 113, 227, 0.25);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            font-size: 15px;
+            color: var(--text-secondary-light);
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            p.subtitle { color: var(--text-secondary-dark); }
+        }
+
+        .categories-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .category-card {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s, border-color 0.2s;
+        }
+
+        .category-card:hover {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: var(--accent-blue);
+            transform: scale(1.015);
+        }
+
+        .category-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(0, 113, 227, 0.1);
+            color: var(--accent-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .category-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .category-info p {
+            font-size: 13px;
+            color: var(--text-secondary-light);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .category-info p { color: var(--text-secondary-dark); }
+        }
+
+        .primary-btn {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 999px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+            max-width: 240px;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            background-color: #0077ed;
+            transform: scale(1.02);
+        }
+
+        .primary-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .progress-meta { color: var(--text-secondary-dark); }
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .progress-bar-outer { background-color: rgba(255, 255, 255, 0.1); }
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-blue);
+            border-radius: 999px;
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .question-text {
+            font-size: 19px;
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: -0.3px;
+        }
+
+        .hint-text {
+            font-size: 13px;
+            color: var(--accent-blue);
+            font-weight: 600;
+            margin-top: -12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            width: 100%;
+        }
+
+        .option-btn {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-light);
+            padding: 15px 18px;
+            border-radius: 14px;
+            text-align: left;
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--text-primary-light);
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled):not(.selected) {
+            background: rgba(0, 0, 0, 0.04);
+            transform: scale(1.01);
+        }
+
+        .option-btn.selected {
+            border-color: var(--accent-blue);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(52, 199, 89, 0.15) !important;
+            border-color: var(--accent-green) !important;
+            color: var(--accent-green) !important;
+            font-weight: 600;
+        }
+
+        .option-btn.incorrect {
+            background-color: rgba(255, 59, 48, 0.12) !important;
+            border-color: var(--accent-red) !important;
+            color: var(--accent-red) !important;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+        
+        .option-btn.correct:disabled, .option-btn.incorrect:disabled {
+            opacity: 1;
+        }
+
+        .action-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 6px;
+        }
+
+        .score-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(0, 71, 227, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .score-big {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .score-total {
+            font-size: 14px;
+            color: var(--text-secondary-light);
+            font-weight: 500;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .score-total { color: var(--text-secondary-dark); }
+            .score-circle { background: rgba(0, 113, 227, 0.15); }
+        }
+
+        .grade-badge {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 6px 20px;
+            border-radius: 999px;
+            background-color: rgba(0, 0, 0, 0.05);
+            margin-top: -4px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .grade-badge { background-color: rgba(255, 255, 255, 0.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card active" id="welcome-card">
+        <div class="welcome-screen">
+            <div class="icon-container">⎈</div>
+            <h1>Kubernetes Quiz Suite</h1>
+            <p class="subtitle">Изберете соодветен модул за да го тестирате вашето знаење.</p>
+            
+            <div class="categories-grid">
+                <div class="category-card" onclick="setupQuiz('pods')">
+                    <div class="category-badge">01</div>
+                    <div class="category-info">
+                        <h3>Модул 1: Подови (Pods)</h3>
+                        <p>Животен циклус, мрежи, архитектура и мулти-контејнери (25 прашања)</p>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="setupQuiz('deployments')">
+                    <div class="category-badge">02</div>
+                    <div class="category-info">
+                        <h3>Модул 2: Namespaces & Deployments</h3>
+                        <p>Изолирани околини, ReplicaSets, Rolling Updates и Rollbacks (25 прашања)</p>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="setupQuiz('services')">
+                    <div class="category-badge">03</div>
+                    <div class="category-info">
+                        <h3>Модул 3: Services & Ingress</h3>
+                        <p>Стабилен пристап, ClusterIP, NodePort, LoadBalancer и Ingress (25 прашања)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="quiz-card">
+        <div class="progress-container">
+            <div class="progress-meta">
+                <span id="question-counter">Прашање 1 од 25</span>
+                <span id="percentage-counter">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" id="progress-indicator"></div>
+            </div>
+        </div>
+        <div class="question-text" id="question-holder">--</div>
+        <div class="hint-text" id="hint-holder" style="display: none;">Повеќекратен избор</div>
+        <div class="options-list" id="options-holder"></div>
+        <div class="action-container" id="action-holder" style="display: none;">
+            <button class="primary-btn" id="submit-btn" disabled>Потврди одговор</button>
+        </div>
+    </div>
+
+    <div class="card" id="results-card">
+        <div class="welcome-screen" style="gap: 16px;">
+            <h1>Вашиот резултат</h1>
+            <div class="score-circle">
+                <span class="score-big" id="final-correct">0</span>
+                <span class="score-total" id="final-total">од 25</span>
+            </div>
+            <div class="grade-badge" id="grade-holder">Оценка: 5</div>
+            <p class="subtitle" id="feedback-message" style="max-width: 360px; margin: 0 auto;"></p>
+            <button class="primary-btn" onclick="backToMenu()">Назад кон мени</button>
+        </div>
+    </div>
+
+    <script>
+        // База со сите три модули со прецизни клуч-индекси
+        const repository = {
+            pods: [
+                { type: "single", question: "Што претставува Подот (Pod) во Kubernetes?", options: ["Највисокото ниво на управување со кластерот.", "Атомска, минлива и непроменлива единица за распоредување.", "Траен објект за складирање податоци кој никогаш не се брише.", "Алатка за командна линија за управување со јазлите."], correct: [1] },
+                { type: "single", question: "Која е препораката за директно користење на самите Подови (Pods) без контролери?", options: ["Се препорачува за сите долготрајни продукциски апликации.", "Не се препорачува директно користење на подовите.", "Се препорачува само кога е потребно автоматско скалирање.", "Се препорачува кога е потребно само-поправање на апликацијата."], correct: [1] },
+                { type: "single", question: "Која алатка од архитектурата на Kubernetes е одговорна за надгледување на подовите кога тие се распоредени во рамките на Контролер?", options: ["Kubelet на локалниот јазел.", "Kube-proxy на мрежниот слој.", "Controller Manager кој работи во Control Plane (master јазлите).", "Екстерна алатка од трета страна."], correct: [2] },
+                { type: "single", question: "Што ќе се случи ако јазолот (node) откаже, а на него има директно распореден статичен Под (без Контролер)?", options: ["Подот автоматски ќе се рестартира на друг јазел.", "Мастер јазелот веднаш ќе креира нов под со иста IP адреса.", "Подот едноставно исчезнува.", "Локалниот Kubelet ќе го задржи во меморијата додека јазелот не се врати."], correct: [2] },
+                { type: "single", question: "Кои заклучок за состојбата на Подот производи од фактот што Контролерот креира нов Под со нова IP адреса и DNS име кога стариот е непоправлив?", options: ["Подот треба да биде со состојба (stateful).", "Подот треба да биде без состојба (stateless).", "Подот мора секогаш да користи иста статичка IP адреса.", "Контролерите не поддржуваат рестартирање на подови."], correct: [1] },
+                { type: "single", question: "На кои начин комуницираат меѓу себе контејнерите што се наоѓаат во еден ист Под со повеќе контејнери?", options: ["Преку надворешна рутабилна IP адреса обезбедена од KubeDNS.", "Преку localhost адаптерот на Подот и соодветниот број на порта.", "Комуникацијата е невозможна бидејќи имаат изолирани мрежни простори.", "Исклучиво преку споделени Unix сокети во UTS просторот."], correct: [1] },
+                { type: "single", question: "Што е тоа \"Pod network\" во Kubernetes?", options: ["Изолирана приватна мрежа достапна само за master јазлите.", "Рамна overlay мрежа во која секој Под добива уникатна и целосно рутабилна IP адреса.", "Физичка мрежна инфраструктура на која се поврзани хардверските сервери.", "Безбедносна политика за дефинирање на пристап до Интернет."], correct: [1] },
+                { type: "single", question: "Која фаза (phase) ја означува состојбата каде Подот е распореден на Kube API, но сè уште не е активен на некој worker јазел?", options: ["Running", "Succeeded", "Terminating", "Pending"], correct: [3] },
+                { type: "single", question: "Која е стандардната (default) опција за политиката на рестартирање (Pod Restart Policy) во Kubernetes?", options: ["OnFailure", "Never", "Always", "RestartUnlessStopped"], correct: [2] },
+                { type: "single", question: "Во кој тип на објекти/контролери треба да бидат обвиткани краткотрајните апликации (како на пример скрипти што завршуваат одредена задача)?", options: ["DaemonSet", "StatefulSet", "Jobs (на пр., CronJobs)", "Deployment"], correct: [2] },
+                { type: "single", question: "Како се манифестира својството за непроменливост (Pod Immutability)?", options: ["Контејнерите во подот не можат да запишуваат податоци на диск.", "Ако треба да се променат метаподатоците на подот, секогаш треба да се креира нов Под.", "Откога ќе се креира подот, неговиот статус засекогаш останува \"Running\".", "Името на Подот може динамички да се менува во било кое време."], correct: [1] },
+                { type: "single", question: "Кој sidecar шаблон зема еден излез од главниот контејнер и го преформати (на пример, ги зема nginx логовите и ги претвора во формат за prometheus)?", options: ["Ambassador", "Init", "Sidecar (основен)", "Adapter"], correct: [3] },
+                { type: "single", question: "Која команда се користи за континуирано следење на статусот на Подовите во реално време?", options: ["kubectl describe pods", "kubectl get pods --watch", "kubectl logs -f", "kubectl apply -f pods"], correct: [1] },
+                { type: "single", question: "Од каде го наследува името на хостот (hostname) секој контејнер кој се извршува во рамките на еден Под?", options: ["Од името на worker јазелот каде што е распореден.", "Од името на Docker сликата (image).", "Го наследува директно од името на Подот.", "Се генерира рандом UUID вредност за секој контејнер посебно."], correct: [2] },
+                { type: "single", question: "Која команда се користи за целосно бришење/уништување на локален k3d кластер со име \"kube2\"?", options: ["kubectl delete cluster kube2", "k3d cluster delete kube2", "k3d stop kube2", "kubectl cluster destroy kube2"], correct: [1] },
+                { type: "multiple", question: "Кои од следниве карактеристики важат за Подовите (Pods) во Kubernetes? (Изберете 3 точни одговори)", options: ["Тие се атомски единици за распоредување.", "Тие се минливи (умираат).", "Тие се целосно променливи (mutable) објекти во реално време.", "Тие се непроменливи (immutable).", "Секогаш се препорачува нивно директно самостојно користење."], correct: [0, 1, 3] },
+                { type: "multiple", question: "Што од наведеното се смета за Контролер (Controller) кој обезбедува логика на повисоко ниво, само-поправање и рутински ажурирања? (Изберете 3 точни одговори)", options: ["Kubelet", "Deployment", "DaemonSet", "StatefulSet", "KubeDNS"], correct: [1, 2, 3] },
+                { type: "multiple", question: "Кои елементи спаѓаат во податоци за проширување на еден Под (Pod Augmentation Data)? (Изберете 4 точни одговори)", options: ["Labels (Етикети)", "Annotations (Анотации)", "Probes (Проби)", "Docker Слики (Images)", "Affinity и Antiaffinity"], correct: [0, 1, 2, 4] },
+                { type: "multiple", question: "Доколку распоредиме Под директно (како статичен под, а не преку Контролер), кои од следниве тврдења се точни? (Изберете 3 точни одговори)", options: ["Се распоредува и му се доделува IP адреса и DNS име.", "Ако контејнерот се прекине, Kubelet ќе се обиде да го рестартира некое време.", "Автоматски ќе се скалира хоризонтално при зголемен сообраќај.", "Нема скалирање, нема ажурирања без прекин и нема само-поправање.", "Ако јазолот откаже, master јазелот веднаш го префрла подот на друг јазел."], correct: [0, 1, 3] },
+                { type: "multiple", question: "Кои се точните чекори при процесот на распоредување на еден Под во кластерот? (Изберете 4 точни одговори)", options: ["Дефинирање на Подот во yaml датотека (манифест).", "Поставување на yaml манифестот директно до Kubelet на работниот јазел.", "Поставување на yaml на Kube API преку алатката kubectl.", "API серверот го автентицира, авторизира и валидира барањето/манифестот.", "Scheduler-от ги распоредува Pod-овите на достапен worker јазел."], correct: [0, 2, 3, 4] },
+                { type: "multiple", question: "Секој Под има сопствени изолирани простори на имиња (namespaces). За што служат овие namespaces во анатомијата на еден Под? (Изберете 3 точни одговори)", options: ["net: за IP адреса, опсег на порти и рутирачка табела.", "pid: за изолирано дрво на процеси.", "mnt: за датотечни системи и волумени.", "kvm: за виртуелизација на јадрото на оперативниот систем.", "cpu: за физичко ограничување на фреквенцијата на процесорот."], correct: [0, 1, 2] },
+                { type: "multiple", question: "Кои од следниве тврдења се точни за мрежното поврзување кај Подовите? (Изберете 3 точни одговори)", options: ["Ако е Под со еден контејнер, тој има целосен пристап до IP адресата и портите на подот.", "Секој контејнер во Под со повеќе контејнери добива своја посебна, уникатна IP адреса.", "Ако е Под со повеќе контејнери, сите контејнери ја споделуваат истата IP адреса и опсег на порти.", "Комуникацијата меѓу контејнерите во ист под се одвива преку localhost.", "Подовите не можат да комуницираат меѓу себе ако јазлите се наоѓаат на различни подложни мрежи."], correct: [0, 2, 3] },
+                { type: "multiple", question: "Кои се трите можни конфигурации за политиката на рестартирање на Подовите (Pod Restart Policy)? (Изберете 3 точни одговори)", options: ["Always", "OnFailure", "OnCrash", "Never", "IfNotPresent"], correct: [0, 1, 3] },
+                { type: "multiple", question: "Кои шаблони (patterns) се користат при дизајнирање на Подови со повеќе контејнери (Multi-container Pods)? (Изберете 4 точни одговори)", options: ["Sidecar", "Adapter", "Ambassador", "Init", "Controller"], correct: [0, 1, 2, 3] },
+                { type: "multiple", question: "Кои од следниве kubectl команди се правилно напишани и соодветствуваат на нивниот опис? (Изберете 3 точни одговори)", options: ["kubectl get pods -o yaml: Прикажува целосен yaml излез за проверка на состојбата.", "kubectl describe pods <име-на-под>: Прикажува детални информации за одреден Pod.", "kubectl logs <име-на-под> --container <име-на-контејнер>: Специфицира од кој контејнер да се прикажат логовите кај мулти-контејнер под.", "kubectl exec -it <име-на-под> sh: Креира нов Pod со имя \"sh\" во кластерот.", "kubectl apply -f: Ги брише сите ресурси дефинирани во датотеката."], correct: [0, 1, 2] }
+            ],
+            deployments: [
+                { type: "single", question: "Што претставуваат Именските простори (Namespaces) во Kubernetes?", options: ["Хардверски партиции на физичките сервери во кластерот.", "Начин за поделба на еден Kubernetes кластер на повеќе виртуелни кластери.", "Специјални волумени за чување на лозинки и конфигурациски датотеки.", "Алатки за автоматско скалирање на мрежниот сообраќај."], correct: [1] },
+                { type: "single", question: "За што се дизајнирани првенствено именските простори (Namespaces)?", options: ["За силна безбедносна изолација на непријателски работни оптоварувања.", "За лесен начин за применување на квоти и политики на групи објекти.", "За зголемување на брзината на мрежниот overlay слој.", "За автоматско рестартирање на физичките јазли."], correct: [1] },
+                { type: "single", question: "Кој именски простор (Namespace) се користи автоматски како стандарден доколку не е експлицитно наведен друг во манифестот?", options: ["kube-public", "kube-system", "default", "main"], correct: [2] },
+                { type: "single", question: "Во кој именски простор (Namespace) се наоѓаат системските компоненти на Kubernetes како што се DNS, metrics server и control plane?", options: ["default", "kube-node-lease", "kube-system", "kube-public"], correct: [2] },
+                { type: "single", question: "Кој именски простор (Namespace) е наменет за „отчукување на срцето\" (node heartbeat) и управување со закуп на јазли?", options: ["default", "kube-node-lease", "kube-public", "kube-system"], correct: [1] },
+                { type: "single", question: "Која команда овозможува да се постави стандарден namespace за тековниот контекст со цел да се избегне постојано пишување на --namespace флагот?", options: ["kubectl create ns <име-на-namespace>", "kubectl config set-context --current --namespace <име-на-namespace>", "kubectl get ns <име-на-namespace>", "kubectl apply -f <име-на-namespace>"], correct: [1] },
+                { type: "single", question: "Кои објекти од повисоко ниво во Kubernetes овозможуваат cloud-native карактеристики како само-поправање, скалирање, rolling updates и rollbacks?", options: ["Pods", "Deployments", "Namespaces", "Node Leases"], correct: [1] },
+                { type: "single", question: "Во која подгрупа на Workloads API се дефинирани сите атрибути на еден Deployment објект во YAML манифестот?", options: ["v1/core", "apps/v1", "extensions/v1beta1", "api/v1"], correct: [1] },
+                { type: "single", question: "Колку шаблони за Pod (Pod template) се управуваат од страна на еден Deployment објект?", options: ["Управува со неограничен број на различни шаблони за разни микросервиси.", "Еден Deployment објект управува со точно еден шаблон за Pod.", "Шаблоните за Pod не се дефинираат во Deployment, туку во Namespace.", "Точно два шаблони - еден за frontend и еден за backend."], correct: [1] },
+                { type: "single", question: "Кој Kubernetes објект е директно одговорен за одржување на точниот и прецизен број на реплики на Подови (Pods) во кластерот?", options: ["Deployment Controller", "Kubelet", "ReplicaSet", "KubeAPI"], correct: [2] },
+                { type: "single", question: "Како се нарекува процесот на доведување на набљудуваната состојба (она што го дава Kubelet) во согласност со посакуваната состојба (дефинирана во манифестот)?", options: ["Rollout", "Augmentation", "Reconciliation", "Termination"], correct: [2] },
+                { type: "single", question: "Што овозможуваат Rolling Updates (Rollouts) кај Deployments?", options: ["Ажурирање на апликацијата со целосно запирање на сите контејнери одеднаш.", "Ажурирање на апликацијата без никаков прекин во нејзината работа (zero-downtime).", "Автоматско менување на физичкиот хардвер на серверот.", "Бришење на сите претходни верзии од историјата на кластерот."], correct: [1] },
+                { type: "single", question: "Која команда се користи за враќање на Deployment-от на специфична претходна ревизија (Rollback)?", options: ["kubectl rollout history deployment <име-на-deployment>", "kubectl rollout undo deployment <име-на-deployment> --to-revision=<ревизија>", "kubectl scale deploy <име-на-deployment> --revision=<ревизија>", "kubectl apply -f deploy.yml --rollback"], correct: [1] },
+                { type: "single", question: "Што може да се случи со рачните императивни промени (на пр. скалирање со команда) при следната примена на соодветниот декларативен манифест?", options: ["Кластерот ќе пријави грешка и ќе престане со работа.", "Манифестот автоматски ќе се ажурира на локалниот компјутер.", "Рачните промени може да бидат прегазени за да се зачува синхронизацијата со манифестот.", "Рачните промени имаат траен приоритет и никогаш не се менуваат."], correct: [2] },
+                { type: "single", question: "Која од следниве команди прикажува историја на rollouts за одреден Deployment?", options: ["kubectl get rs", "kubectl rollout history deployment <име-на-deployment>", "kubectl describe deploy <име-на-deployment>", "kubectl get deploy <име-на-deployment>"], correct: [1] },
+                { type: "multiple", question: "Кои се главните придобивки и начини на употреба на Именските простори (Namespaces)? (Изберете 2 точни одговори)", options: ["Споделување на еден ист физички кластер помеѓу различни оддели и околини (Dev, Test, QA, Prod).", "Обезбедување на силна и непробојна изолација на малициозни или компромитирани контејнери.", "Контрола на ресурси преку доделување на уникатни квоти, дозволи и сет на корисници за секој namespace посебно.", "Автоматско скалирање на апликациите врз основа на искористеност на CPU."], correct: [0, 1] }, // заменет со фиксен клуч од фајлот [0,1]
+                { type: "multiple", question: "Кои се точните тврдења во врска со ограничувањата за изолација кај Namespaces? (Изберете 2 точни одговори)", options: ["Namespaces не се добри за изолација на непријателски работни оптоварувања.", "Секој namespace има потполно изолиран физички мрежен рутер.", "Компромитиран контејнер или Под во еден Namespace може да предизвика проблеми во други Namespaces.", "Невозможно е да се креираат повеќе од 4 именски простори во еден кластер."], correct: [0, 2] },
+                { type: "multiple", question: "На кои начини може да се креира и со кои команди може да се управува со еден Namespace во Kubernetes? (Изберете 2 точни одговори)", options: ["Императивно (рачно) со командата: kubectl create ns <име-на-namespace>.", "Декларативно (преку манифест) со дефинирање во YAML датотека и примена со kubectl apply -f <фајл.yml>.", "Преку директно менување на системските фајлови во kube-node-lease.", "Со користење на командата kubectl scale ns <име-на-namespace>."], correct: [0, 1] },
+                { type: "multiple", question: "Кои од следниве карактеристики се директно овозможени од Deployment објектите во Kubernetes? (Изберете 4 точни одговори)", options: ["Само-поправање (self-healing)", "Скалирање (scaling)", "Ажурирања во тек без прекин (rolling updates)", "Враќање на претходни верзии (rollbacks)", "Креирање на физички хардверски јазли."], correct: [0, 1, 2, 3] },
+                { type: "multiple", question: "Доколку една децентрализирана апликација се состои од два микросервиси - frontend и shopping cart, како треба да се постават нејзините Deployment манифести? (Изберете 2 точни одговори)", options: ["Ќе има два одделни Deployment манифести бидејќи секој управува со еден шаблон за Pod.", "Целата апликација мора да биде сместена во само еден единствен Deployment манифест.", "Може да се скалираат независно преку дефинирање на соодветен број реплики (replicas) во секој манифест.", "Мора да се избрише стандардниот default namespace за да проработат."], correct: [0, 2] },
+                { type: "multiple", question: "Како Deployment објектот соработува со ReplicaSet објектот? (Изберете 3 точни одговори)", options: ["Репликацијата (одржувањето на точниот број реплики) е всушност контролирана од ReplicaSet.", "Deployment дејствува како обвивка која го обвиткува ReplicaSet.", "Deployment додава напредни функционалности врз ReplicaSet како што се rollouts и rollbacks.", "ReplicaSet е понов објект кој целосно го заменува и брише Deployment во архитектурата.", "Со користење на Deployment ги добиваме сите предности на ReplicaSet."], correct: [0, 1, 2] }, // според клучот [0,1,2] соодветствува на A,B,C бидејќи E е со индекс 4
+                { type: "multiple", question: "Кои елементи ја претставуваат разликата и врската помеѓу состојбите во кластерот (State Matters)? (Изберете 3 точни одговори)", options: ["Манифестите (Manifests) ја претставуваат посакуваната состојба - она што сакаме.", "Kubelet ја дава набљудуваната состојба - она што реално го имаме во кластерот.", "Reconciliation е процесот на доведување на набљудуваната состојба во согласност со посакуваната.", "Корисникот мора рачно и чекор по чекор да му каже на Kubernetes 'како' да ја поправи состојбата.", "DNS серверот сам ги брише манифестите откако ќе се прочитаат."], correct: [0, 1, 2] },
+                { type: "multiple", question: "Како се одвива процесот на ажурирање преку Rolling Updates (Rollouts)? (Изберете 2 точни одговори)", options: ["Сите стари реплики веднаш се терминираат пред да се подигне било која нова верзија.", "Kubernetes постепено креира нови реплики со новата верзија и ги терминира старите.", "Се осигурува дека секогаш има доволно активни реплики за да се опслужи сообраќајот за време на транзицијата.", "Автоматски се менува содржината во именскиот простор kube-node-lease."], correct: [1, 2] },
+                { type: "multiple", question: "На кои начини може да се изврши скалирање на еден Deployment (промена на бројот на реплики)? (Изберете 2 точни одговори)", options: ["Императивно со извршување на командата: kubectl scale deploy <име-на-deployment> --replicas <број>.", "Декларативно преку промена на бројот на реплики директно во YAML манифестот и негова примена со kubectl apply -f <фајл.yml>.", "Преку бришење на објектот ReplicaSet со командата kubectl get rs.", "Со рачно рестартирање на локалнот kube-system namespace."], correct: [0, 1] },
+                { type: "multiple", question: "Кои од следниве команди за управување со Deployments се точни? (Изберете 3 точни одговори)", options: ["kubectl apply -f deploy.yml: Го распоредува Deployment-от дефиниран во датотеката.", "kubectl get rs: Ги прикажува активните ReplicaSets во кластерот.", "kubectl rollout undo deployment <име-на-deployment>: Го враќа Deployment-от на претходната верзија.", "kubectl create deployment --delete: Служи за прикажување на историјата на сите избришани реплики."], correct: [0, 1, 2] }
+            ],
+            services: [
+                { type: "single", question: "Зошто ни се потребни Services (Услуги) во Kubernetes за разлика од Подовите (Pods)?", options: ["Затоа што Подовите трошат премногу меморија на јазлите.", "Подовите се непроменливи, се ажурираат или откажуваат и добиваат нови IP адреси, па Service обезбедува стабилна IP адреса, DNS и порти.", "Затоа што без Service објект, апликациите воопшто не можат да стартуваат во кластерот.", "За да се овозможи грациозно прекинување на физичкиот сервер."], correct: [1] },
+                { type: "single", question: "На кој начин Service објектот ги индексира и ги пронаоѓа соодветните Подови (Pods) во кластерот?", options: ["Преку уникатниот ID број на контејнерот генериран од Docker.", "Преку случајно избрани мрежни порти на worker јазелот.", "Преку етикети (labels) и селектори (selectors).", "Преку внатрешната рутирачка табела на оперативниот систем."], correct: [2] },
+                { type: "single", question: "Како се нарекува објектот што се креира од самиот Service, а содржи курирана листа од IP адресите на сите здрави Подови кои одговараат на селекторите?", options: ["Ingress Controller", "Namespace Lease", "EndpointSlice", "ReplicaSet Layer."], correct: [2] },
+                { type: "single", question: "Како се нарекува концептот каде во светот на микросервисите се пребарува KubeAPI за директно да се добие содржината на EndpointSlice?", options: ["Container Orchestration", "Service Discovery", "Load Balancing", "Continuous Integration"], correct: [1] },
+                { type: "single", question: "Кој тип на Service овозможува пристап до услугата исклучиво од внатрешноста на кластерот, добивајќи IP адреса од K8S мрежниот overlay?", options: ["NodePort", "LoadBalancer", "ClusterIP", "Ingress"], correct: [2] },
+                { type: "single", question: "Што генерира типот на услуга ClusterIP за да овозможи стабилна конекција внатре во кластерот?", options: ["Стабилна IP адреса и стабилен DNS.", "Динамичка IP адреса која се менува на секои 5 минути.", "Надворешна рутабилна јавна IP адреса.", "Приватен Unix сокет во IPC просторот."], correct: [0] },
+                { type: "single", question: "Кој тип на надворешен пристап (Outside Access) се надоврзува на ClusterIP, отворајќи ја истата порта на секој работен јазел и рутирајќи ја до назначениот Service?", options: ["Ingress Object", "NodePort", "EndpointSlice", "Traefik Controller"], correct: [1] },
+                { type: "single", question: "Кое од следниве тврдења е точно во врска со употребата на NodePort во продукциски кластери?", options: ["NodePort е исклучително скалабилен и се препорачува за секој микросервис.", "На една порта може да се поврзат неограничен број на различни услуги.", "Не е скалабилен, се поврзува само еден Service со дадена порта и генерално не е употреблив на продукциски кластери.", "Тој целосно ја заменува потребата од Ingress контролери."], correct: [2] },
+                { type: "single", question: "Кој начин за креирање на Services се смета за препорачлив во Kubernetes?", options: ["Императивниот начин со командата kubectl expose.", "Декларативниот начин со дефинирање на Service во yaml датотека и примена со kubectl apply -f service.yml.", "Рачно запишување на IP адресите во KubeDNS.", "Креирање преку алатката docker run --expose."], correct: [1] },
+                { type: "single", question: "Што овозможува и кои рути ги изложува Ingress ресурсот во еден Kubernetes кластер?", options: ["Ги изложува само UDP порти од еден јазел до друг.", "Ги изложува HTTP и HTTPS рутите од надвор од кластерот до services во рамките на кластерот.", "Овозможува автоматско бришење на нездравите јазли.", "Служи за директно изложување на хардверски дискови до Интернет."], correct: [1] },
+                { type: "single", question: "Како се контролира рутирањето на сообраќајот кај Ingress?", options: ["Преку правила дефинирани на самиот Ingress ресурс.", "Преку рачно конфигурирање на IPTables на секој worker јазел.", "Се контролира автоматски од страна на објектот ReplicaSet.", "Со користење на командата kubectl scale."], correct: [0] },
+                { type: "single", question: "Преку кое својство во ingress манифестот се контролира кој точно Ingress Controller ќе се користи, доколку на кластерот има повеќе од еден?", options: ["metadata.name", "spec.ingressClassName", "spec.replicaCount", "apiVersion: apps/v1"], correct: [1] },
+                { type: "single", question: "Кој Ingress Controller доаѓа инсталиран по дифолт на Load Balancer јазол кај k3s (односно k3d)?", options: ["nginx", "HAProxy", "traefik", "Envoy"], correct: [2] },
+                { type: "single", question: "Која порта на Load Balancer worker-от треба да ја изложите при креирање на нов k3d кластер за сообраќајот да се пренасочува кон внатрешниот traefik?", options: ["8080", "443", "80", "22"], correct: [2] },
+                { type: "single", question: "Која команда се користи за прикажување на детални информации за одреден Ingress објект?", options: ["kubectl get service", "kubectl describe ingress <име-на-ingress>", "kubectl get ing", "k3d cluster delete"], correct: [1] },
+                { type: "multiple", question: "Што сè обезбедуваат Services (Услугите) со цел да овозможат стабилна рачка кон Подовите? (Изберете 3 точни одговори)", options: ["Стабилна IP адреса", "Стабилен DNS", "Стабилни порти", "Физичка изолација на јазлите од Control Plane", "Креирање на нови Docker слики при пад на апликацијата"], correct: [0, 1, 2] },
+                { type: "multiple", question: "За кои активности Deployments можат да ги надгледуваат Подовите, додека на сите останати компоненти им е потребен Service како стабилна точка на поврзување? (Изберете 3 точни одговори)", options: ["Скалирање (Scaling)", "Ажурурање (Rollout)", "Враќање на претходни верзии (Rollback)", "Дефинирање на хардверски квоти за процесорот", "Чистење на закуп на јазли (Node Lease)"], correct: [0, 1, 2] },
+                { type: "multiple", question: "Кои карактеристики важат за поврзувањето на Service со Подовите (Service coupling to Pods)? (Изберете 3 точни одговори)", options: ["Service ќе бара Подови со наведените селектори (selectors).", "Сите наведени тагови во selectors мора да бидат labels во Подовите.", "Вашите Подови не смеат да имаат никакви дополнителни labels освен тие во селекторот.", "Вашите Подови можат да имаат и дополнителни labels.", "Поврзувањето се врши исклучиво преку името на хостот (hostname)."], correct: [0, 1, 3] },
+                { type: "multiple", question: "Кои дејства ги презема Kubernetes при курирање на листите на EndpointSlice објектот? (Изберете 3 точни одговори)", options: ["Постојано ги надгледува Services со нивните selectors и Pods со нивните labels.", "Сите здрави Подови кои одговараат на selectors се додаваат во EndpointSlice објектот.", "Кога пристапуваме до IP адресата на Service, нашето барање се рутира преку IP адресите од EndpointSlice.", "Автоматски го прекинува и брише Service објектот ако некој под е нездрав.", "EndpointSlice податоците се тајни и не може директно да се пребаруваат преку KubeAPI."], correct: [0, 1, 2] },
+                { type: "multiple", question: "На кои два начини можеме да пристапиме до Kubernetes услугите од надвор (Outside Access)? (Изберете 2 точни одговори)", options: ["ClusterIP", "NodePort", "Load Balancer", "kube-node-lease", "pod network"], correct: [1, 2] },
+                { type: "multiple", question: "Како се дефинираат А и АААА DNS записите кои ги добиваат услугите за внатрешен пристап во кластерот? (Изберете 2 точни одговори)", options: ["DNS записот ја има структурата: my-svc.my-namespace.svc.cluster-domain.example.", "DNS записот зависи исклучиво од јавната IP адреса на Cloud провајдерот.", "Добивањето на овие записи е карактеристично за типот ClusterIP кој генерира стабилно име.", "Овие записи се бришат секој пат кога некој контејнер во подот ќе се рестартира локално."], correct: [0, 2] },
+                { type: "multiple", question: "Кои од следниве команди се користат за инспекција на Services во Kubernetes кластер? (Изберете 2 точни одговори)", options: ["kubectl get service", "kubectl describe service <име-на-сервис>", "kubectl rollout undo service", "k3d cluster create --service"], correct: [0, 1] },
+                { type: "multiple", question: "Кои од следниве се најчесто користени Ingress Контролери (Ingress Controllers) во Kubernetes средините? (Изберете 2 точни одговори)", options: ["nginx", "Kubelet", "traefik", "EndpointSlice", "Kube-proxy"], correct: [0, 2] },
+                { type: "multiple", question: "Кои од следниве тврдења во врска со Ingress контролерите се точни? (Изберете 2 точни одговори)", options: ["Во еден кластер е строго забрането да има повеќе од еден Ingress Controller.", "Можете да имате повеќе од еден Ingress Controller на вашиот кластер.", "Изборот на контролер се врши преку дефинирање на spec.ingressClassName во манифестот.", "Секој Ingress мора рачно да биде поврзан со kube-system за да работи."], correct: [1, 2] },
+                { type: "multiple", question: "Кои од следниве команди за инспекција или чистење на ресурси поврзани со Дел 4 се правилно напишани? (Изберете 3 точни одговори)", options: ["kubectl get ing: Ги прикажува сите Ingress објекти.", "kubectl describe ingress <име-на-ingress>: Прикажува детални информации за одреден Ingress објект.", "k3d cluster delete kube4: Го уништува креираниот k3d кластер со име 'kube4'.", "kubectl expose ingress --all-routes: Се користи за автоматско креирање на рути до сите namespaces одеднаш."], correct: [0, 1, 2] }
+            ]
+        };
+
+        let currentQuiz = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedIndices = [];
+
+        const welcomeCard = document.getElementById('welcome-card');
+        const quizCard = document.getElementById('quiz-card');
+        const resultsCard = document.getElementById('results-card');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        const questionCounter = document.getElementById('question-counter');
+        const percentageCounter = document.getElementById('percentage-counter');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const questionHolder = document.getElementById('question-holder');
+        const hintHolder = document.getElementById('hint-holder');
+        const optionsHolder = document.getElementById('options-holder');
+        const actionHolder = document.getElementById('action-holder');
+        
+        const finalCorrect = document.getElementById('final-correct');
+        const finalTotal = document.getElementById('final-total');
+        const gradeHolder = document.getElementById('grade-holder');
+        const feedbackMessage = document.getElementById('feedback-message');
+
+        submitBtn.addEventListener('click', processMultipleChoiceSelection);
+
+        function switchCard(fromCard, toCard) {
+            fromCard.classList.remove('active');
+            setTimeout(() => {
+                toCard.classList.add('active');
+            }, 300);
+        }
+
+        function setupQuiz(key) {
+            currentQuiz = repository[key];
+            currentQuestionIndex = 0;
+            score = 0;
+            renderQuestion();
+            switchCard(welcomeCard, quizCard);
+        }
+
+        function renderQuestion() {
+            const currentQuestion = currentQuiz[currentQuestionIndex];
+            selectedIndices = [];
+            
+            const totalQuestions = currentQuiz.length;
+            const progressPercent = Math.round((currentQuestionIndex / totalQuestions) * 100);
+            
+            questionCounter.textContent = `Прашање ${currentQuestionIndex + 1} од ${totalQuestions}`;
+            percentageCounter.textContent = `${progressPercent}%`;
+            progressIndicator.style.width = `${progressPercent}%`;
+            
+            questionHolder.textContent = currentQuestion.question;
+            optionsHolder.innerHTML = '';
+
+            if (currentQuestion.type === "multiple") {
+                hintHolder.style.display = "block";
+                actionHolder.style.display = "flex";
+                submitBtn.disabled = true;
+            } else {
+                hintHolder.style.display = "none";
+                actionHolder.style.display = "none";
+            }
+            
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                
+                if (currentQuestion.type === "single") {
+                    button.addEventListener('click', () => handleSingleChoiceSelection(index, button));
+                } else {
+                    button.addEventListener('click', () => toggleMultipleChoiceSelection(index, button));
+                }
+                optionsHolder.appendChild(button);
+            });
+        }
+
+        function handleSingleChoiceSelection(selectedIndex, clickedButton) {
+            const currentQuestion = currentQuiz[currentQuestionIndex];
+            const allButtons = optionsHolder.querySelectorAll('.option-btn');
+            
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === currentQuestion.correct[0]) {
+                clickedButton.classList.add('correct');
+                score++;
+            } else {
+                clickedButton.classList.add('incorrect');
+                allButtons[currentQuestion.correct[0]].classList.add('correct');
+            }
+
+            goToNextQuestion();
+        }
+
+        function toggleMultipleChoiceSelection(index, button) {
+            if (selectedIndices.includes(index)) {
+                selectedIndices = selectedIndices.filter(i => i !== index);
+                button.classList.remove('selected');
+            } else {
+                selectedIndices.push(index);
+                button.classList.add('selected');
+            }
+            submitBtn.disabled = selectedIndices.length === 0;
+        }
+
+        function processMultipleChoiceSelection() {
+            const currentQuestion = currentQuiz[currentQuestionIndex];
+            const allButtons = optionsHolder.querySelectorAll('.option-btn');
+            
+            allButtons.forEach(btn => btn.disabled = true);
+            submitBtn.disabled = true;
+
+            const correctSet = currentQuestion.correct;
+            let isPerfect = true;
+
+            allButtons.forEach((btn, index) => {
+                const shouldBeCorrect = correctSet.includes(index);
+                const isSelected = selectedIndices.includes(index);
+
+                if (shouldBeCorrect) {
+                    btn.classList.add('correct');
+                    if (!isSelected) isPerfect = false;
+                } else if (isSelected) {
+                    btn.classList.add('incorrect');
+                    isPerfect = false;
+                }
+            });
+
+            if (isPerfect) {
+                score++;
+            }
+
+            goToNextQuestion();
+        }
+
+        function goToNextQuestion() {
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < currentQuiz.length) {
+                    renderQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1400);
+        }
+
+        function showResults() {
+            const totalQuestions = currentQuiz.length;
+            const percentage = Math.round((score / totalQuestions) * 100);
+            
+            finalCorrect.textContent = score;
+            finalTotal.textContent = `од ${totalQuestions}`;
+            
+            let grade = 5;
+            let message = "";
+            
+            if (percentage >= 90) {
+                grade = 10;
+                message = "Совршено подготвено! Вие сте вистински експерт за кластер архитектура.";
+            } else if (percentage >= 80) {
+                grade = 9;
+                message = "Одличен резултат! Ги контролирате ресурсите и конфигурациите без проблем.";
+            } else if (percentage >= 70) {
+                grade = 8;
+                message = "Многу добар успех. Стабилно разбирање на сите дефинирани концепти.";
+            } else if (percentage >= 60) {
+                grade = 7;
+                message = "Успешно поминат тест. Потребни се само мали дообјаснувања во одредени делови.";
+            } else if (percentage >= 50) {
+                grade = 6;
+                message = "Положено! Успешно ги совладавте клучните испитна прашања.";
+            } else {
+                grade = 5;
+                message = "Резултатот не е доволен за преодна оценка. Препрочитајте ги материјалите и обидете се пак.";
+            }
+            
+            gradeHolder.textContent = `Оценка: ${grade}`;
+            feedbackMessage.textContent = message;
+            
+            switchCard(quizCard, resultsCard);
+        }
+
+        function backToMenu() {
+            switchCard(resultsCard, welcomeCard);
+        }
+    </script>
+</body>
+</html>
