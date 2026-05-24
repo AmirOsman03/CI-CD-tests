@@ -337,6 +337,23 @@
             opacity: 1;
         }
 
+        .explanation-box {
+            background: rgba(0, 113, 227, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            display: none;
+            margin-top: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .explanation-box {
+                background: rgba(0, 113, 227, 0.15);
+            }
+        }
+
         .action-container {
             display: flex;
             justify-content: center;
@@ -445,8 +462,10 @@
         <div class="question-text" id="question-holder">--</div>
         <div class="hint-text" id="hint-holder" style="display: none;">Повеќекратен избор</div>
         <div class="options-list" id="options-holder"></div>
+        <div class="explanation-box" id="explanation-holder"></div>
         <div class="action-container" id="action-holder" style="display: none;">
             <button class="primary-btn" id="submit-btn" disabled>Потврди одговор</button>
+            <button class="primary-btn" id="next-btn" style="display: none;">Продолжи</button>
         </div>
     </div>
 
@@ -456,6 +475,9 @@
             <div class="score-circle">
                 <span class="score-big" id="final-correct">0</span>
                 <span class="score-total" id="final-total">од 25</span>
+            </div>
+            <div style="font-size: 15px; font-weight: 600; color: var(--accent-red);" id="final-incorrect-box">
+                Згрешени прашања: <span id="final-incorrect">0</span>
             </div>
             <div class="grade-badge" id="grade-holder">Оценка: 5</div>
             <p class="subtitle" id="feedback-message" style="max-width: 360px; margin: 0 auto;"></p>
@@ -579,12 +601,14 @@
         let currentQuiz = [];
         let currentQuestionIndex = 0;
         let score = 0;
+        let incorrectCount = 0;
         let selectedIndices = [];
 
         const welcomeCard = document.getElementById('welcome-card');
         const quizCard = document.getElementById('quiz-card');
         const resultsCard = document.getElementById('results-card');
         const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
         
         const questionCounter = document.getElementById('question-counter');
         const percentageCounter = document.getElementById('percentage-counter');
@@ -592,14 +616,24 @@
         const questionHolder = document.getElementById('question-holder');
         const hintHolder = document.getElementById('hint-holder');
         const optionsHolder = document.getElementById('options-holder');
+        const explanationHolder = document.getElementById('explanation-holder');
         const actionHolder = document.getElementById('action-holder');
         
         const finalCorrect = document.getElementById('final-correct');
         const finalTotal = document.getElementById('final-total');
+        const finalIncorrect = document.getElementById('final-incorrect');
         const gradeHolder = document.getElementById('grade-holder');
         const feedbackMessage = document.getElementById('feedback-message');
 
         submitBtn.addEventListener('click', processMultipleChoiceSelection);
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuiz.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        });
 
         function switchCard(fromCard, toCard) {
             fromCard.classList.remove('active');
@@ -612,6 +646,7 @@
             currentQuiz = repository[key];
             currentQuestionIndex = 0;
             score = 0;
+            incorrectCount = 0;
             renderQuestion();
             switchCard(welcomeCard, quizCard);
         }
@@ -629,6 +664,11 @@
             
             questionHolder.textContent = currentQuestion.question;
             optionsHolder.innerHTML = '';
+            explanationHolder.style.display = 'none';
+            explanationHolder.innerHTML = '';
+            
+            submitBtn.style.display = 'block';
+            nextBtn.style.display = 'none';
 
             if (currentQuestion.type === "multiple") {
                 hintHolder.style.display = "block";
@@ -637,6 +677,7 @@
             } else {
                 hintHolder.style.display = "none";
                 actionHolder.style.display = "none";
+                submitBtn.disabled = true;
             }
             
             currentQuestion.options.forEach((option, index) => {
@@ -659,15 +700,20 @@
             
             allButtons.forEach(btn => btn.disabled = true);
             
-            if (selectedIndex === currentQuestion.correct[0]) {
+            const isCorrect = selectedIndex === currentQuestion.correct[0];
+            if (isCorrect) {
                 clickedButton.classList.add('correct');
                 score++;
+                setTimeout(advanceQuestion, 1000);
             } else {
                 clickedButton.classList.add('incorrect');
                 allButtons[currentQuestion.correct[0]].classList.add('correct');
+                incorrectCount++;
+                showExplanation(currentQuestion);
+                actionHolder.style.display = 'flex';
+                submitBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
             }
-
-            goToNextQuestion();
         }
 
         function toggleMultipleChoiceSelection(index, button) {
@@ -686,7 +732,6 @@
             const allButtons = optionsHolder.querySelectorAll('.option-btn');
             
             allButtons.forEach(btn => btn.disabled = true);
-            submitBtn.disabled = true;
 
             const correctSet = currentQuestion.correct;
             let isPerfect = true;
@@ -706,20 +751,29 @@
 
             if (isPerfect) {
                 score++;
+                setTimeout(advanceQuestion, 1000);
+            } else {
+                incorrectCount++;
+                showExplanation(currentQuestion);
+                submitBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                actionHolder.style.display = 'flex';
             }
-
-            goToNextQuestion();
         }
 
-        function goToNextQuestion() {
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < currentQuiz.length) {
-                    renderQuestion();
-                } else {
-                    showResults();
-                }
-            }, 1400);
+        function advanceQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuiz.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showExplanation(question) {
+            const correctText = question.correct.map(idx => question.options[idx]).join(", ");
+            explanationHolder.innerHTML = `<strong>Објаснување:</strong><br>Точниот одговор е: <em>${correctText}</em>.`;
+            explanationHolder.style.display = 'block';
         }
 
         function showResults() {
@@ -728,6 +782,7 @@
             
             finalCorrect.textContent = score;
             finalTotal.textContent = `од ${totalQuestions}`;
+            finalIncorrect.textContent = incorrectCount;
             
             let grade = 5;
             let message = "";
