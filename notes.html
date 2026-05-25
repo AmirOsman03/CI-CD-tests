@@ -374,23 +374,97 @@
             font-weight: bold;
         }
 
-        /* Copy Button */
-        .copy-btn {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s;
+        /* Visual Diagram Styles */
+        .diagram-container {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            overflow-x: auto;
         }
 
-        .copy-btn:active {
-            transform: scale(0.95);
+        .visual-node {
+            border: 2px solid var(--accent-blue);
+            padding: 15px 25px;
+            border-radius: 12px;
+            background: rgba(0, 113, 227, 0.1);
+            position: relative;
+            text-align: center;
+            min-width: 150px;
         }
+
+        .visual-pod {
+            border: 2px dashed #34c759;
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(52, 199, 89, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .visual-container {
+            background: #333;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .connector {
+            width: 2px;
+            height: 30px;
+            background: var(--accent-blue);
+            position: relative;
+        }
+
+        .connector::after {
+            content: '▼';
+            position: absolute;
+            bottom: -8px;
+            left: -5px;
+            font-size: 10px;
+            color: var(--accent-blue);
+        }
+
+        /* Terminal Styling */
+        .terminal {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 15px 0;
+        }
+
+        .terminal-header {
+            background: #333;
+            padding: 10px 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-body {
+            padding: 20px;
+            color: #f8f8f2;
+            font-family: 'SF Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .terminal-body code { color: #50fa7b; }
+        .terminal-body code::before { content: "$ "; color: #ff79c6; }
 
         /* Scrollbar */
         ::-webkit-scrollbar {
@@ -489,6 +563,17 @@
         const notesData = {
             pods: {
                 title: "Модул 1: Подови (Pods) & Архитектура",
+                diagram: `
+                    <div class="visual-node">Control Plane (API Server)</div>
+                    <div class="connector"></div>
+                    <div class="visual-node" style="border-color: #ffbd2e;">Worker Node (Kubelet)</div>
+                    <div class="connector"></div>
+                    <div class="visual-pod">
+                        <div style="font-weight: bold; color: #34c759;">Pod</div>
+                        <div class="visual-container">App Container</div>
+                        <div class="visual-container" style="border-color: #ff79c6;">Sidecar Container</div>
+                    </div>
+                `,
                 sections: [
                     {
                         subtitle: "1. Kubernetes Основна Архитектура",
@@ -534,6 +619,19 @@
             },
             deployments: {
                 title: "Модул 2: Namespaces & Deployments",
+                diagram: `
+                    <div class="visual-node" style="border-color: #af52de;">Deployment (Strategy)</div>
+                    <div class="connector"></div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="visual-node" style="min-width: 100px; border-color: #ffbd2e;">RS-v1</div>
+                        <div class="visual-node" style="min-width: 100px; border-color: #34c759;">RS-v2</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="width: 30px; height: 30px; background: #34c759; border-radius: 50%;"></div>
+                        <div style="width: 30px; height: 30px; background: #34c759; border-radius: 50%;"></div>
+                        <div style="width: 30px; height: 30px; background: #34c759; border-radius: 50%;"></div>
+                    </div>
+                `,
                 sections: [
                     {
                         subtitle: "1. Namespaces (Виртуелни кластери)",
@@ -563,6 +661,17 @@
             },
             services: {
                 title: "Модул 3: Services & Ingress",
+                diagram: `
+                    <div class="visual-node" style="border-color: #0071e3;">Internet (Ingress)</div>
+                    <div class="connector"></div>
+                    <div class="visual-node">Service (ClusterIP)</div>
+                    <div class="connector"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="visual-pod" style="padding: 10px;">Pod A</div>
+                        <div class="visual-pod" style="padding: 10px;">Pod B</div>
+                        <div class="visual-pod" style="padding: 10px;">Pod C</div>
+                    </div>
+                `,
                 sections: [
                     {
                         subtitle: "1. Што е Service?",
@@ -582,7 +691,7 @@
                     },
                     {
                         subtitle: "5. Ingress (Layer 7 Routing)",
-                        content: "<b>Ingress:</b> Дефинира правила (host/path) за HTTP/HTTPS рутирање.<br><b>Ingress Controller:</b> Софтверот што реално го извршува рутирањето (пр. Nginx, Traefik).<br><i>* Кај K3D стандарден е Traefik и мора да се изложи порта 80.</i>"
+                        content: "<b>Ingress:</b> Дефинира правила (host/path) за HTTP/HTTPS рутирање.<br><b>Ingress Controller:</b> Софтверот што реално го изврашува рутирањето (пр. Nginx, Traefik).<br><i>* Кај K3D стандарден е Traefik и мора да се изложи порта 80.</i>"
                     },
                     {
                         subtitle: "6. Корисни команди",
@@ -592,6 +701,13 @@
             },
             storage: {
                 title: "Модул 4: Storage, ConfigMaps & Secrets",
+                diagram: `
+                    <div class="visual-pod" style="border-color: #0071e3;">Pod</div>
+                    <div class="connector"></div>
+                    <div class="visual-node" style="border-style: dashed;">PVC (Request)</div>
+                    <div class="connector"></div>
+                    <div class="visual-node" style="background: #333;">PV (Real Disk)</div>
+                `,
                 sections: [
                     {
                         subtitle: "1. Persistent Storage (PV, PVC, CSI)",
@@ -631,13 +747,41 @@
             const overlay = document.getElementById('modalOverlay');
 
             let html = `<h2>${data.title}</h2>`;
+            
+            // Inject Diagram if exists
+            if (data.diagram) {
+                html += `
+                    <div class="diagram-container">
+                        <div style="font-size: 12px; color: #86868b; margin-bottom: 10px;">Visual Architecture View</div>
+                        ${data.diagram}
+                    </div>
+                `;
+            }
+
             data.sections.forEach(sec => {
+                let sectionContent = sec.content;
+                
+                // Convert code tags to Terminal style if they are commands
+                if (sectionContent.includes('<code>')) {
+                    sectionContent = `
+                        <div class="terminal">
+                            <div class="terminal-header">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-body">
+                                ${sectionContent.replace(/• /g, '')}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 html += `
                     <div class="note-section">
                         <h4>${sec.subtitle}</h4>
                         <div class="note-content">
-                            <p>${sec.content}</p>
-                            <button class="copy-btn" onclick="copyToClipboard('${sec.content.replace(/'/g, "\\'").replace(/<br>/g, "\\n").replace(/<[^>]*>/g, "")}')">Копирај белешка</button>
+                            <p>${sectionContent}</p>
                         </div>
                     </div>
                 `;
@@ -652,19 +796,6 @@
             const overlay = document.getElementById('modalOverlay');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = "Копирано!";
-                btn.style.background = "#34c759";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "";
-                }, 2000);
-            });
         }
 
         // Search functionality
