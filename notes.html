@@ -488,19 +488,47 @@
     <script>
         const notesData = {
             pods: {
-                title: "Модул 1: Подови (Pods)",
+                title: "Модул 1: Подови (Pods) & Архитектура",
                 sections: [
                     {
-                        subtitle: "Основи на Подови",
-                        content: "Подот е најмалата единица за распоредување во Kubernetes. Тој претставува една инстанца од апликацијата и може да содржи еден или повеќе контејнери."
+                        subtitle: "1. Kubernetes Основна Архитектура",
+                        content: "<b>Control Plane:</b><br>• API Server: прима барања<br>• Scheduler: избира worker<br>• Controller Manager: следи и поправа ресурси<br>• etcd: складира конфигурации<br><br><b>Worker Node:</b><br>• Kubelet: управува со Pod-ови<br>• Container Runtime: стартува контејнери"
                     },
                     {
-                        subtitle: "Животен циклус (Lifecycle)",
-                        content: "• <b>Pending:</b> Подот е прифатен, но еден или повеќе контејнери не се стартувани.<br>• <b>Running:</b> Подот е доделен на јазел и сите контејнери се креирани.<br>• <b>Succeeded/Failed:</b> Подот ја завршил задачата успешно или со грешка."
+                        subtitle: "2. Основи на Pod",
+                        content: "Pod е најмала единица во Kubernetes. Контејнерите во ист Pod делат: IP, localhost, hostname и volumes. Pod-овите се <b>непроменливи (Immutable)</b>.<br><br><b>Состојби (Lifecycle):</b><br>• <b>Pending:</b> Чека ресурси.<br>• <b>Running:</b> Работи.<br>• <b>Succeeded:</b> Успешно завршил.<br>• <b>Failed:</b> Грешка."
                     },
                     {
-                        subtitle: "Мулти-контејнерски шаблони",
-                        content: "• <b>Sidecar:</b> Помага на главниот контејнер (на пр. собирање логови).<br>• <b>Ambassador:</b> Делува како прокси за надворешни врски.<br>• <b>Adapter:</b> Ги стандардизира излезите на апликацијата."
+                        subtitle: "3. Probes (Проверки)",
+                        content: "• <b>Startup Probe:</b> Проверува дали апликацијата стартувала.<br>• <b>Readiness Probe:</b> Проверува дали е подготвена за сообраќај.<br>• <b>Liveness Probe:</b> Проверува дали апликацијата е заглавена."
+                    },
+                    {
+                        subtitle: "4. Ресурси и Контрола",
+                        content: "• <b>Requests:</b> Минимум ресурси.<br>• <b>Limits:</b> Максимум ресурси.<br>• <b>TerminationGracePeriod:</b> Време за безбедно гаснење (default 30s).<br>• <b>Restart Policy:</b> Always, OnFailure, Never."
+                    },
+                    {
+                        subtitle: "5. Affinity & Мрежа",
+                        content: "• <b>Affinity:</b> Pod-ови блиску еден до друг.<br>• <b>AntiAffinity:</b> Pod-ови на различни worker-и.<br>• <b>Network Overlay:</b> Секој Pod добива уникатна IP и сите комуницираат директно."
+                    },
+                    {
+                        subtitle: "6. Мулти-контејнерски шаблони",
+                        content: "• <b>Sidecar:</b> Помошен контејнер (логови, метрики).<br>• <b>Adapter:</b> Менува формат (пр. Nginx logs во Prometheus).<br>• <b>Ambassador:</b> Посредува со надворешни системи (бази).<br>• <b>Init Container:</b> Стартува прв и мора да заврши успешно."
+                    },
+                    {
+                        subtitle: "7. Организација & Безбедност",
+                        content: "• <b>Labels:</b> key=value за групирање.<br>• <b>Annotations:</b> дополнителни информации (не за селекција).<br>• <b>Security Policies:</b> runAsNonRoot: true, readOnlyRootFilesystem: true."
+                    },
+                    {
+                        subtitle: "8. Напредно: Статични Подови & Namespaces",
+                        content: "• <b>Статичен Pod:</b> Kubelet го следи директно (нема scaling/self-healing).<br>• <b>Namespaces во Pod:</b> net (IP), pid (процеси), mnt (volumes), UTS (hostname), IPC (shared memory).<br>• <b>DNS:</b> pod-ip.namespace.pod.cluster.local"
+                    },
+                    {
+                        subtitle: "9. kubectl & k3d",
+                        content: "• <code>kubectl get pod pod1 -o yaml</code> - YAML формат<br>• <code>kubectl logs pod1 --container app</code> - Логови од специфичен контејнер<br>• <code>k3d cluster delete kube2</code> - Бришење на k3d кластер"
+                    },
+                    {
+                        subtitle: "10. Брзи Совети (Cheat Sheet)",
+                        content: "• Pod е најмала deploy единица.<br>• Контејнерите во ист Pod делат IP и localhost.<br>• Controller обезбедува self-healing.<br>• Affinity = блиску, AntiAffinity = раздели.<br>• Services = стабилна комуникација."
                     }
                 ]
             },
@@ -508,16 +536,28 @@
                 title: "Модул 2: Namespaces & Deployments",
                 sections: [
                     {
-                        subtitle: "Што е Deployment?",
-                        content: "Deployment објектот овозможува декларативно ажурирање за Подови и ReplicaSets. Тој се грижи за посакуваната состојба (desired state) на вашата апликација."
+                        subtitle: "1. Namespaces (Виртуелни кластери)",
+                        content: "Начин да се подели еден кластер на повеќе логички делови.<br><br><b>🧠 Аналогија (Стан):</b> Кластерот е стан, а секој Namespace е посебна соба. Сите се во ист стан, но има правила за пристап.<br><br><b>Стандардни Namespaces:</b><br>• <b>default:</b> Твоите апликации.<br>• <b>kube-system:</b> Инфраструктура на Kubernetes.<br>• <b>kube-public:</b> Јавни податоци.<br>• <b>kube-node-lease:</b> Heartbeat проверка на јазлите."
                     },
                     {
-                        subtitle: "Rolling Updates & Rollbacks",
-                        content: "• <b>Rolling Update:</b> Постепена замена на стари верзии со нови без downtime.<br>• <b>Rollback:</b> Брзо враќање на претходна стабилна верзија ако новата пријави грешка."
+                        subtitle: "2. Оперативни команди за Namespaces",
+                        content: "• <code>kubectl create ns [име]</code> - Брзо креирање.<br>• <code>kubectl apply -f yaml</code> - Професионален начин.<br>• <code>set-context</code> - Менува default namespace за сесијата.<br>• Ако не специфицираш namespace, оди во <b>default</b>."
                     },
                     {
-                        subtitle: "Namespaces",
-                        content: "Именските простори се виртуелни кластери во рамките на еден физички кластер. Служат за изолација на тимови, проекти или околини (Dev, Test, Prod)."
+                        subtitle: "3. Deployment: Мозокот на апликацијата",
+                        content: "<b>🧠 Аналогија (Ресторан):</b><br>• <b>Deployment:</b> Менаџер на ресторанот.<br>• <b>ReplicaSet:</b> Персонал што се дуплира.<br>• <b>Pod:</b> Еден работник.<br>Ако работник си замине, менаџерот веднаш наоѓа замена (Self-healing)."
+                    },
+                    {
+                        subtitle: "4. Хиерархија и API",
+                        content: "1. <b>Deployment:</b> Управувач на високо ниво.<br>2. <b>ReplicaSet:</b> Се грижи за бројот на копии.<br>3. <b>Pod:</b> Најмала единица.<br>• <b>API група:</b> apps/v1"
+                    },
+                    {
+                        subtitle: "5. Клучни функции на Deployment",
+                        content: "• <b>🔁 Rolling Updates:</b> Постепена замена без downtime.<br>• <b>↩️ Rollbacks:</b> Брзо враќање на стара верзија.<br>• <b>📦 Version Control:</b> Историја на сите промени."
+                    },
+                    {
+                        subtitle: "6. Deployment vs. ReplicaSet (Зошто Deployment?)",
+                        content: "<b>ReplicaSet:</b> Само одржува бројка на Pods.<br><b>Deployment:</b> Целосен систем кој управува со ReplicaSets и додава верзионирање и стратегии за ажурирање.<br><br><b>📌 Испитно правило:</b> Deployment е 'higher-level' објект кој додава моќ над основната ReplicaSet механизација."
                     }
                 ]
             },
@@ -525,16 +565,28 @@
                 title: "Модул 3: Services & Ingress",
                 sections: [
                     {
-                        subtitle: "Зошто ни се потребни Services?",
-                        content: "Бидејќи Подовите се минливи и нивните IP адреси се менуваат, Service објектот обезбедува стабилна IP адреса и DNS име."
+                        subtitle: "1. Што е Service?",
+                        content: "Стабилен влез кон нестабилни Pod-ови. Обезбедува <b>фиксна IP и DNS</b>, врши Load Balancing и ги користи <b>labels + selectors</b> за да ги најде соодветните Pod-ови."
                     },
                     {
-                        subtitle: "Типови на услуги",
-                        content: "• <b>ClusterIP:</b> Само за внатрешен пристап во кластерот (default).<br>• <b>NodePort:</b> Ја изложува услугата на портата на секој јазел.<br>• <b>LoadBalancer:</b> Користи cloud-provider load balancer за надворешен пристап."
+                        subtitle: "2. Service Discovery (Како работи?)",
+                        content: "Service користи селектори за да ги најде Pod-овите. Автоматски се креира <b>EndpointSlice</b> (листа на IP-ови на здрави Pod-ови).<br><b>Процес:</b> Service → EndpointSlice → Pod."
                     },
                     {
-                        subtitle: "Ingress",
-                        content: "Ingress управува со надворешен пристап до услугите преку HTTP/HTTPS. Овозможува path-based рутирање (на пр. domain.com/api) и SSL терминација."
+                        subtitle: "3. Типови на Services",
+                        content: "• <b>ClusterIP:</b> Само внатрешна комуникација (стандардно).<br>• <b>NodePort:</b> Отвора порт на секој јазел (надворешен пристап, не е за production).<br>• <b>LoadBalancer:</b> Cloud решение со јавна IP (production standard)."
+                    },
+                    {
+                        subtitle: "4. Начини на работа",
+                        content: "• <b>Императивно:</b> Брзи команди преку CLI (за тестирање).<br>• <b>Декларативно:</b> Преку YAML фајлови (Git-friendly, production standard)."
+                    },
+                    {
+                        subtitle: "5. Ingress (Layer 7 Routing)",
+                        content: "<b>Ingress:</b> Дефинира правила (host/path) за HTTP/HTTPS рутирање.<br><b>Ingress Controller:</b> Софтверот што реално го извршува рутирањето (пр. Nginx, Traefik).<br><i>* Кај K3D стандарден е Traefik и мора да се изложи порта 80.</i>"
+                    },
+                    {
+                        subtitle: "6. Корисни команди",
+                        content: "• <code>kubectl get svc</code> - Листа на сите услуги.<br>• <code>kubectl get ing</code> - Листа на Ingress ресурси.<br>• <code>kubectl describe ingress [име]</code> - Детални информации и правила."
                     }
                 ]
             },
@@ -542,16 +594,32 @@
                 title: "Модул 4: Storage, ConfigMaps & Secrets",
                 sections: [
                     {
-                        subtitle: "Persistent Storage",
-                        content: "• <b>PV:</b> Физички ресурс за складирање.<br>• <b>PVC:</b> Барање од корисникот за одредено складиште.<br>• <b>StorageClass:</b> Овозможува автоматско (динамично) креирање на PV."
+                        subtitle: "1. Persistent Storage (PV, PVC, CSI)",
+                        content: "• <b>PV:</b> Реално складирање податоци.<br>• <b>PVC:</b> Барање од корисникот за складирање.<br>• <b>CSI:</b> Стандард кој овозможува надворешни системи (cloud) да работат со Kubernetes без тој директно да управува со нив."
                     },
                     {
-                        subtitle: "ConfigMaps",
-                        content: "Се користат за чување на несензитивни податоци во форма на клуч-вредност. Овозможуваат одвојување на конфигурацијата од самиот апликациски код."
+                        subtitle: "2. StorageClass & Автоматизација",
+                        content: "Дефинира типови на storage (SSD, HDD). PVC избира StorageClass, а CSI автоматски го креира реалниот простор во позадина."
                     },
                     {
-                        subtitle: "Secrets",
-                        content: "Слични на ConfigMaps, но наменети за сензитивни податоци (лозинки, клучни парови). Податоците се base64 кодирани и можат дополнително да бидат енкриптирани."
+                        subtitle: "3. Access Modes (Режими на пристап)",
+                        content: "<b>🧠 Аналогија:</b><br>• <b>RWO (ReadWriteOnce):</b> Една соба, еден човек (еден јазел).<br>• <b>RWX (ReadWriteMany):</b> Заедничка библиотека (повеќе јазли пишуваат/читаат).<br>• <b>ROX (ReadOnlyMany):</b> Музеј (многумина само читаат)."
+                    },
+                    {
+                        subtitle: "4. Reclaim Policy (Што по бришење?)",
+                        content: "• <b>Delete:</b> Фрли ја кутијата (брише податоци).<br>• <b>Retain:</b> Чувај ја кутијата (податоците остануваат, бара рачно чистење)."
+                    },
+                    {
+                        subtitle: "5. ConfigMaps (Несензитивни податоци)",
+                        content: "Служат за одвојување на конфигурацијата од кодот (Cloud-native принцип).<br>❌ НЕ е за лозинки или API клучеви.<br>✅ Се користи како ENV променливи или монтирани фајлови."
+                    },
+                    {
+                        subtitle: "6. Secrets (Сензитивни податоци)",
+                        content: "<b>⚠️ ВАЖНО:</b> Secrets не се вистински енкриптирани, туку само <b>base64 encoded</b>. Лесно се декодираат!<br><br><b>🧠 Аналогија:</b> Secret е затворен плик. Се чува во <b>tmpfs (RAM)</b> на јазелот за да не остава траги на дискот. Максимална големина: 1MiB."
+                    },
+                    {
+                        subtitle: "7. Кратко за испит",
+                        content: "• <b>ConfigMap</b> = non-sensitive config.<br>• <b>Secret</b> = sensitive (но бара дополнителна заштита како Vault).<br>• <b>base64 ≠ encryption.</b><br>• <b>RWO</b> е најчест режим за бази на податоци."
                     }
                 ]
             }
@@ -598,6 +666,22 @@
                 }, 2000);
             });
         }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('.card-desc').innerText.toLowerCase();
+                if (title.includes(term) || desc.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
 
         // Parallax effect for blobs
         document.addEventListener('mousemove', (e) => {
