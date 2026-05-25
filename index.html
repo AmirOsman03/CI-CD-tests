@@ -181,6 +181,7 @@
         .badge-3 { background: rgba(255, 149, 0, 0.1); color: #ff9500; }
         .badge-4 { background: rgba(52, 199, 89, 0.1); color: #34c759; }
         .badge-random { background: rgba(255, 45, 85, 0.1); color: #ff2d55; }
+        .badge-notes { background: rgba(255, 179, 0, 0.1); color: #ffb300; }
 
         @media (prefers-color-scheme: dark) {
             .badge-1 { background: rgba(10, 132, 255, 0.2); color: #0a84ff; }
@@ -188,6 +189,7 @@
             .badge-3 { background: rgba(255, 159, 10, 0.2); color: #ff9f0a; }
             .badge-4 { background: rgba(48, 209, 88, 0.2); color: #30d158; }
             .badge-random { background: rgba(255, 55, 95, 0.2); color: #ff375f; }
+            .badge-notes { background: rgba(255, 179, 0, 0.2); color: #ffb300; }
         }
 
         .category-info h3 {
@@ -865,6 +867,14 @@
                         <p>Микс од сите модули (25 случајно избрани прашања)</p>
                     </div>
                 </div>
+
+                <div class="category-card" onclick="goToNotes()">
+                    <div class="category-badge badge-notes">📝</div>
+                    <div class="category-info">
+                        <h3>Брзи белешки</h3>
+                        <p>Ваши лични белешки и потсетници (наскоро)</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -912,6 +922,18 @@
             </div>
 
             <button class="primary-btn" onclick="backToMenu()">Назад кон мени</button>
+        </div>
+    </div>
+
+    <div class="card" id="notes-card">
+        <button class="back-btn" onclick="backToMenuFromNotes()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Назад кон мени
+        </button>
+        <div class="welcome-screen">
+            <h1>Брзи белешки</h1>
+            <p class="subtitle">Тука ќе можете да ги прегледувате вашите белешки.</p>
+            <!-- Content will be added later -->
         </div>
     </div>
 
@@ -1038,7 +1060,16 @@
         const welcomeCard = document.getElementById('welcome-card');
         const quizCard = document.getElementById('quiz-card');
         const resultsCard = document.getElementById('results-card');
+        const notesCard = document.getElementById('notes-card');
         const submitBtn = document.getElementById('submit-btn');
+
+        function goToNotes() {
+            window.location.href = 'notes.html';
+        }
+
+        function backToMenuFromNotes() {
+            switchCard(notesCard, welcomeCard);
+        }
         const nextBtn = document.getElementById('next-btn');
         
         const questionCounter = document.getElementById('question-counter');

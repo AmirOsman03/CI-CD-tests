@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Quick Notes | Premium Study Hub</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --accent-blue: #0071e3;
+            --accent-blue-glow: rgba(0, 113, 227, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: default;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Animated Background Blobs */
+        .blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(100px);
+            opacity: 0.4;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            background: linear-gradient(135deg, #0071e3, #42a5f5);
+            animation-duration: 25s;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -100px;
+            background: linear-gradient(135deg, #af52de, #0071e3);
+            animation-duration: 30s;
+        }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 50px) scale(1.1); }
+        }
+
+        /* Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 64px;
+            background: rgba(245, 245, 247, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-logo span {
+            color: var(--accent-blue);
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        header {
+            max-width: 1000px;
+            margin: 80px auto 40px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #434344 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto 60px;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--glass-border);
+            padding: 16px 24px 16px 48px;
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            cursor: text;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px var(--accent-blue-glow);
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* Grid Cards */
+        .grid {
+            max-width: 1100px;
+            margin: 0 auto 100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(0, 113, 227, 0.3);
+            background: white;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            background: rgba(0, 113, 227, 0.05);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: var(--accent-blue);
+        }
+
+        h3 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Modal / Expandable Section */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: #f5f5f7;
+            border: none;
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .close-modal:hover {
+            background: #e8e8ed;
+        }
+
+        .modal-body {
+            margin-top: 20px;
+        }
+
+        .note-section {
+            margin-bottom: 32px;
+        }
+
+        .note-section h4 {
+            color: var(--accent-blue);
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-content {
+            background: rgba(0, 0, 0, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .note-content ul {
+            list-style: none;
+        }
+
+        .note-content li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .note-content li::before {
+            content: "•";
+            color: var(--accent-blue);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            h1 { font-size: 38px; }
+            .subtitle { font-size: 16px; }
+            .grid { grid-template-columns: 1fr; }
+            nav { padding: 0 20px; }
+            .modal-content { padding: 24px; border-radius: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="nav-logo">⎈ <span>Notes</span>Hub</div>
+        <a href="index.html" class="back-link">← Назад кон квизот</a>
+    </nav>
+
+    <header>
+        <h1>Kubernetes Quick Notes</h1>
+        <p class="subtitle">Модерни и сумирани белешки за брзо учење и подготовка за испити. Идеален придружник за вашите студии.</p>
+    </header>
+
+    <div class="grid" id="modulesGrid">
+        <!-- Module 01 -->
+        <div class="card" onclick="openModal('pods')">
+            <div class="card-header">
+                <span class="module-num">01</span>
+                <div class="card-icon">📦</div>
+            </div>
+            <h3>Модул 1: Подови (Pods)</h3>
+            <p class="card-desc">Животен циклус, мрежи, архитектура и мулти-контејнерски шаблони во срцето на Kubernetes.</p>
+        </div>
+
+        <!-- Module 02 -->
+        <div class="card" onclick="openModal('deployments')">
+            <div class="card-header">
+                <span class="module-num">02</span>
+                <div class="card-icon">🚀</div>
+            </div>
+            <h3>Модул 2: Deployments</h3>
+            <p class="card-desc">Управување со реплики, rolling updates, rollbacks и изолација преку Namespaces.</p>
+        </div>
+
+        <!-- Module 03 -->
+        <div class="card" onclick="openModal('services')">
+            <div class="card-header">
+                <span class="module-num">03</span>
+                <div class="card-icon">🌐</div>
+            </div>
+            <h3>Модул 3: Services & Ingress</h3>
+            <p class="card-desc">Стабилен мрежен пристап, ClusterIP, NodePort, LoadBalancer и Layer 7 рутирање.</p>
+        </div>
+
+        <!-- Module 04 -->
+        <div class="card" onclick="openModal('storage')">
+            <div class="card-header">
+                <span class="module-num">04</span>
+                <div class="card-icon">💾</div>
+            </div>
+            <h3>Модул 4: Storage & Config</h3>
+            <p class="card-desc">Persistent Volumes, динамично обезбедување, ConfigMaps и безбедност со Secrets.</p>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeModal()">✕</button>
+            <div id="modalBody" class="modal-body">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const notesData = {
+            pods: {
+                title: "Модул 1: Подови (Pods)",
+                sections: [
+                    {
+                        subtitle: "Основи на Подови",
+                        content: "Подот е најмалата единица за распоредување во Kubernetes. Тој претставува една инстанца од апликацијата и може да содржи еден или повеќе контејнери."
+                    },
+                    {
+                        subtitle: "Животен циклус (Lifecycle)",
+                        content: "• <b>Pending:</b> Подот е прифатен, но еден или повеќе контејнери не се стартувани.<br>• <b>Running:</b> Подот е доделен на јазел и сите контејнери се креирани.<br>• <b>Succeeded/Failed:</b> Подот ја завршил задачата успешно или со грешка."
+                    },
+                    {
+                        subtitle: "Мулти-контејнерски шаблони",
+                        content: "• <b>Sidecar:</b> Помага на главниот контејнер (на пр. собирање логови).<br>• <b>Ambassador:</b> Делува како прокси за надворешни врски.<br>• <b>Adapter:</b> Ги стандардизира излезите на апликацијата."
+                    }
+                ]
+            },
+            deployments: {
+                title: "Модул 2: Namespaces & Deployments",
+                sections: [
+                    {
+                        subtitle: "Што е Deployment?",
+                        content: "Deployment објектот овозможува декларативно ажурирање за Подови и ReplicaSets. Тој се грижи за посакуваната состојба (desired state) на вашата апликација."
+                    },
+                    {
+                        subtitle: "Rolling Updates & Rollbacks",
+                        content: "• <b>Rolling Update:</b> Постепена замена на стари верзии со нови без downtime.<br>• <b>Rollback:</b> Брзо враќање на претходна стабилна верзија ако новата пријави грешка."
+                    },
+                    {
+                        subtitle: "Namespaces",
+                        content: "Именските простори се виртуелни кластери во рамките на еден физички кластер. Служат за изолација на тимови, проекти или околини (Dev, Test, Prod)."
+                    }
+                ]
+            },
+            services: {
+                title: "Модул 3: Services & Ingress",
+                sections: [
+                    {
+                        subtitle: "Зошто ни се потребни Services?",
+                        content: "Бидејќи Подовите се минливи и нивните IP адреси се менуваат, Service објектот обезбедува стабилна IP адреса и DNS име."
+                    },
+                    {
+                        subtitle: "Типови на услуги",
+                        content: "• <b>ClusterIP:</b> Само за внатрешен пристап во кластерот (default).<br>• <b>NodePort:</b> Ја изложува услугата на портата на секој јазел.<br>• <b>LoadBalancer:</b> Користи cloud-provider load balancer за надворешен пристап."
+                    },
+                    {
+                        subtitle: "Ingress",
+                        content: "Ingress управува со надворешен пристап до услугите преку HTTP/HTTPS. Овозможува path-based рутирање (на пр. domain.com/api) и SSL терминација."
+                    }
+                ]
+            },
+            storage: {
+                title: "Модул 4: Storage, ConfigMaps & Secrets",
+                sections: [
+                    {
+                        subtitle: "Persistent Storage",
+                        content: "• <b>PV:</b> Физички ресурс за складирање.<br>• <b>PVC:</b> Барање од корисникот за одредено складиште.<br>• <b>StorageClass:</b> Овозможува автоматско (динамично) креирање на PV."
+                    },
+                    {
+                        subtitle: "ConfigMaps",
+                        content: "Се користат за чување на несензитивни податоци во форма на клуч-вредност. Овозможуваат одвојување на конфигурацијата од самиот апликациски код."
+                    },
+                    {
+                        subtitle: "Secrets",
+                        content: "Слични на ConfigMaps, но наменети за сензитивни податоци (лозинки, клучни парови). Податоците се base64 кодирани и можат дополнително да бидат енкриптирани."
+                    }
+                ]
+            }
+        };
+
+        function openModal(moduleId) {
+            const data = notesData[moduleId];
+            const modalBody = document.getElementById('modalBody');
+            const overlay = document.getElementById('modalOverlay');
+
+            let html = `<h2>${data.title}</h2>`;
+            data.sections.forEach(sec => {
+                html += `
+                    <div class="note-section">
+                        <h4>${sec.subtitle}</h4>
+                        <div class="note-content">
+                            <p>${sec.content}</p>
+                            <button class="copy-btn" onclick="copyToClipboard('${sec.content.replace(/'/g, "\\'").replace(/<br>/g, "\\n").replace(/<[^>]*>/g, "")}')">Копирај белешка</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            modalBody.innerHTML = html;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Копирано!";
+                btn.style.background = "#34c759";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                }, 2000);
+            });
+        }
+
+        // Parallax effect for blobs
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const blob1 = document.querySelector('.blob-1');
+            const blob2 = document.querySelector('.blob-2');
+            
+            blob1.style.transform = `translate(${x * 50}px, ${y * 50}px)`;
+            blob2.style.transform = `translate(${x * -50}px, ${y * -50}px)`;
+        });
+    </script>
+</body>
+</html>
